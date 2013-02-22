@@ -11,6 +11,7 @@ function player.new()
 	self.z = 0 -- Z is the bottom of the foot
 	self.height = 0 -- height to head
 	self.armLen = 0-- length of arm
+	self.isselected = false
 	
 	function self:GetPixelX()
 		return utilHandler:TranslateXMeterToPixel(self.x)
@@ -31,7 +32,14 @@ function player.new()
 	
 	
 	function self:draw()
-		love.graphics.setColor(255,255,255,255)
+		
+		if self.isselected then
+			love.graphics.setColor(255,0,0,255)
+			print "This one selected"
+		else
+			love.graphics.setColor(255, 255, 255, 255)
+			print "this one not"
+		end
 		
 		local width = love.graphics.getWidth()
 		local height = love.graphics.getHeight()
@@ -42,14 +50,22 @@ function player.new()
 		
 		love.graphics.rectangle("fill", self:GetPixelX(), self:GetPixelY(), utilHandler:TD(self.front), utilHandler:TD(self.side) );
 		love.graphics.setPointSize(5)
+		
+		
 		love.graphics.setColor(20, 20, 20, 255)
-		love.graphics.point(self:XCenterDistanceFromOrigin(), self:GetPixelY()+self.side)
+		
+		love.graphics.point(self:XCenterDistanceFromOrigin(), self:GetPixelY()-self.side)
 		
 		love.graphics.translate(self:XCenterDistanceFromOrigin(), self:YCenterDistanceFromOrigin())
 		love.graphics.rotate(-1*self.angle)
 		love.graphics.translate(-1*self:XCenterDistanceFromOrigin(), -1*self:YCenterDistanceFromOrigin())
 		
 	end
+	
+	function self:selected()
+		self.isselected = true
+	end
+	
 	
 	function self:XCenterDistanceFromOrigin()
 		
