@@ -24,7 +24,7 @@ function disk.new()
 	self.y = 30 -- Top point in meters
 	self.z = 1 
 	self.rotation = {x=0, y= 0}
-	self.velocityVector = {x = 10, y = 10, z = 0} -- Absolute m/s
+	self.velocityVector = Vector.new( 10,  10,  0) -- Absolute m/s
 	self.radius = .5
 	self.posessingPlayer = {}
 	
@@ -40,7 +40,7 @@ function disk.new()
 			self.y = self.y+self.velocityVector.y* (dt)
 			
 			--print ("Z valPreop: " .. self.z)
-			self.z = self.z + Vector:Magnitude(self.velocityVector)*zConstant* (dt) - gravityDefault
+			self.z = self.z + self.velocityVector:Magnitude()*zConstant* (dt) - gravityDefault
 			--print ("Vector Magnitude" .. Vector:Magnitude(self.velocityVector))
 			
 			--print ("Z val: " .. self.z)
