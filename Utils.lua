@@ -34,6 +34,18 @@ function utils.new()
 		return self:TranslateDistance(len)
 	end
 	
+	function self:TranslateXPixelToMeter(x)
+		local TranslatedX
+
+		TranslatedX = (x/self.PixelMeterConversion)-self.StartField.x
+	
+	end
+	
+	
+	function self:TranslateYPixelToMeter(y)
+		local TranslatedY
+
+		TranslatedY = (y/self.PixelMeterConversion)-self.StartField.y
 	return self
 	
 	

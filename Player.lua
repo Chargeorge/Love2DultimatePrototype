@@ -54,7 +54,7 @@ function player.new()
 		
 		love.graphics.setColor(20, 20, 20, 255)
 		
-		love.graphics.point(self:XCenterDistanceFromOrigin(), self:GetPixelY()-self.side)
+		love.graphics.point(self:XCenterDistanceFromOrigin(), self:GetPixelY()+self:GetSidePixel())--
 		
 		love.graphics.translate(self:XCenterDistanceFromOrigin(), self:YCenterDistanceFromOrigin())
 		love.graphics.rotate(-1*self.angle)

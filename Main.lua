@@ -2,6 +2,7 @@ local player = require("Player")
 local disk = require("disk")
 local field = require("field")
 local Utils = require("utils")
+local vector = require("vector")
 debugFlg = false
 
 
@@ -13,12 +14,15 @@ function love.load()
 	player2.y = 20
 	mainplayer.x = 0
 	mainplayer.y = 38
-	    squares = {1, 4, 9, 16, 25, 36, 49, 64, 81}
 	gamedisk = disk.new()
 	Field = field.new()
 	gamedisk:caught(player2)
 	player2:selected()
 	playerobjs = {player1, player2}
+	testVector = vector.new(10,10)
+	testVector.origX = player2.x;
+	testVector.origY = player2.y;
+
 	
 end
 
@@ -28,6 +32,7 @@ function love.draw()
 	player2:draw()
 	
 	gamedisk:draw()
+	testVector:draw();
 end
 
 function love.update(dt)
