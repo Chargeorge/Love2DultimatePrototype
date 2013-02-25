@@ -46,6 +46,14 @@ function Vector.new(xUser, yUser, zUser) --IN METERS
 		return UtilFuncs:TranslateXMeterToPixel(self.origX)+ UtilFuncs:TD(self.x), UtilFuncs:TranslateYMeterToPixel(self.origY)+UtilFuncs:TD(self.y)
 	end
 	
+	function self:SetSelfFromAbsol(absolX,absolY)
+		
+		local absolStartX, absolStartY = self:AbsouteStartPoints()
+		self.x = UtilFuncs:TDPixel(absolX - absolStartX)
+		self.y = UtilFuncs:TDPixel(absolY - absolStartY)
+	end
+	
+	
 	return self
 end
 return Vector

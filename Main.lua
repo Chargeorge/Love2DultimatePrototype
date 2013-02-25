@@ -3,6 +3,7 @@ local disk = require("disk")
 local field = require("field")
 local Utils = require("utils")
 local vector = require("vector")
+local gamestate = require("gamestate")
 debugFlg = false
 
 
@@ -22,8 +23,9 @@ function love.load()
 	testVector = vector.new(10,10)
 	testVector.origX = player2.x;
 	testVector.origY = player2.y;
-
-	
+	gameState = gamestate.new()
+	gameState.throwVector = nil
+	gameState.drawThrowVector = false
 end
 
 function love.draw()
@@ -32,12 +34,17 @@ function love.draw()
 	player2:draw()
 	
 	gamedisk:draw()
-	testVector:draw();
+	if gameState.drawThrowVector and gameState.thowVector ~= nil then
+		gameState.thowVector:draw();
+	end
 end
 
 function love.update(dt)
 	mainplayer.angle = -1*mainplayer:GetAngleToPointer()
 	player2.angle = -1*player2:GetAngleToPointer()
+	if gameState.drawThrowVector and gameState.thowVector ~= nil then
+		gameState.throwVector:SetSelfFromAbsol(love.mouse.getX(),love.mouse.getX())
+	end
 	gamedisk:updateposition(dt)
 
 end
@@ -48,6 +55,21 @@ function GetSelectedPlayer()
 end
 
 function love.mousepressed(x, y, button)
+	print "In mouse pressed event"
+	if gamedisk.posessingPlayer == gameState.selectedPlayer then
+		print "In conditional"
+		gameState.drawThrowVector = true
+		gameState.throwVector  = vector.new(0,0)
+		gameState.throwVector.origX = player2.x;
+		gameState.throwVector.origY = player2.y;
+		gameState.throwVector:SetSelfFromAbsol(x,y)
+		
+	end
 	
 
 end
+
+function love.mousereleased(x,y, button)
+	gameState.drawThrowVector = false
+end
+

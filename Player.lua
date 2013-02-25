@@ -12,6 +12,7 @@ function player.new()
 	self.height = 0 -- height to head
 	self.armLen = 0-- length of arm
 	self.isselected = false
+	--print (utilHandler:TranslateXMeterToPixel(self.x))
 	
 	function self:GetPixelX()
 		return utilHandler:TranslateXMeterToPixel(self.x)
@@ -35,10 +36,10 @@ function player.new()
 		
 		if self.isselected then
 			love.graphics.setColor(255,0,0,255)
-			print "This one selected"
+			--print "This one selected"
 		else
 			love.graphics.setColor(255, 255, 255, 255)
-			print "this one not"
+			--print "this one not"
 		end
 		
 		local width = love.graphics.getWidth()

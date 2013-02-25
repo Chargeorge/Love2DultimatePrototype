@@ -46,10 +46,16 @@ function utils.new()
 		local TranslatedY
 
 		TranslatedY = (y/self.PixelMeterConversion)-self.StartField.y
+		return TranslatedY
+	end
+	
+	function self:TranslateDistanceFromPixel(len)
+		return len/ self.PixelMeterConversion
+	end
+	
+	function self:TDPixel(len)
+		return self:TranslateDistanceFromPixel(len)
+	end
 	return self
-	
-	
-
-
 end
 return utils

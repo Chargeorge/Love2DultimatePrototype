@@ -57,8 +57,8 @@ function disk.new()
 		if self.currentDiskState == self.staticDiskState.playerhand then
 			self.x = self.posessingPlayer.x+math.cos(self.posessingPlayer.angle)*self.posessingPlayer.front-- + self.posessingPlayer.front
 			self.y = self.posessingPlayer.y+math.sin(self.posessingPlayer.angle)*self.posessingPlayer.side--+self.posessingPlayer.side
-			print (self.x)
-			print (self.y)
+			--print (self.x) 
+			--print (self.y)
 			self.z = 1
 		end
 	end
