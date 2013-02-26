@@ -32,6 +32,13 @@ function disk.new()
 	local gravityDefault = .07
 	
 	--[[Throwing methods]]
+	function self:throw(velVector)
+		self.currentDiskState = self.staticDiskState.inflight
+		self.velocityVector = velVector
+		self.z = 1.5
+	end
+	
+	
 	function self:updateposition(dt)
 		if self.z > 0 and self.currentDiskState == self.staticDiskState.inflight then
 		

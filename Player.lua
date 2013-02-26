@@ -11,6 +11,8 @@ function player.new()
 	self.z = 0 -- Z is the bottom of the foot
 	self.height = 0 -- height to head
 	self.armLen = 0-- length of arm
+	self.playerId = math.random(1, 1000000) --TODO: Need to take a look at this, and ensure no collisions.
+	
 	self.isselected = false
 	--print (utilHandler:TranslateXMeterToPixel(self.x))
 	

@@ -26,6 +26,7 @@ function love.load()
 	gameState = gamestate.new()
 	gameState.throwVector = nil
 	gameState.drawThrowVector = false
+	gameState.selectedPlayer = player2
 end
 
 function love.draw()
@@ -34,16 +35,17 @@ function love.draw()
 	player2:draw()
 	
 	gamedisk:draw()
-	if gameState.drawThrowVector and gameState.thowVector ~= nil then
-		gameState.thowVector:draw();
+	if gameState.drawThrowVector and gameState.throwVector ~= nil then
+		print "drawin"
+		gameState.throwVector:draw();
 	end
 end
 
 function love.update(dt)
 	mainplayer.angle = -1*mainplayer:GetAngleToPointer()
 	player2.angle = -1*player2:GetAngleToPointer()
-	if gameState.drawThrowVector and gameState.thowVector ~= nil then
-		gameState.throwVector:SetSelfFromAbsol(love.mouse.getX(),love.mouse.getX())
+	if gameState.drawThrowVector and gameState.throwVector ~= nil then
+		gameState.throwVector:SetSelfFromAbsol(love.mouse.getX(),love.mouse.getY())
 	end
 	gamedisk:updateposition(dt)
 
@@ -56,7 +58,7 @@ end
 
 function love.mousepressed(x, y, button)
 	print "In mouse pressed event"
-	if gamedisk.posessingPlayer == gameState.selectedPlayer then
+	if gamedisk.posessingPlayer.playerId == gameState.selectedPlayer.playerId then
 		print "In conditional"
 		gameState.drawThrowVector = true
 		gameState.throwVector  = vector.new(0,0)
@@ -71,5 +73,6 @@ end
 
 function love.mousereleased(x,y, button)
 	gameState.drawThrowVector = false
+	gamedisk:throw(gameState.throwVector)
 end
 
