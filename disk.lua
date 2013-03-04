@@ -1,7 +1,5 @@
 local disk = {}
 
-
-
 function CreateDiskState()
 	return 	{ground = 1,
 	playerhand = 2,
