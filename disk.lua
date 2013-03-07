@@ -34,6 +34,7 @@ function disk.new()
 		self.currentDiskState = self.staticDiskState.inflight
 		self.velocityVector = velVector
 		self.z = 1.5
+		self.posessingPlayer = {}
 	end
 	
 	

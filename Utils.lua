@@ -37,15 +37,15 @@ function utils.new()
 	function self:TranslateXPixelToMeter(x)
 		local TranslatedX
 
-		TranslatedX = (x/self.PixelMeterConversion)-self.StartField.x
-	
+		TranslatedX = (x-self.StartField.x)/self.PixelMeterConversion
+	    return TranslatedX
 	end
 	
 	
 	function self:TranslateYPixelToMeter(y)
 		local TranslatedY
 
-		TranslatedY = (y/self.PixelMeterConversion)-self.StartField.y
+		TranslatedY = (y-self.StartField.y)/self.PixelMeterConversion
 		return TranslatedY
 	end
 	

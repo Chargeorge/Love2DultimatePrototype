@@ -6,7 +6,8 @@ function gamestate.new()
 	self.throwVector = nil
 	self.drawThrowVector = false
 	self.posessingPlayer = nil
-	return self
+	self.Utils = utils.new()
+    return self
 
 end
 

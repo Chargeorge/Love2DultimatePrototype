@@ -16,10 +16,16 @@
     <filename>Utils.lua</filename>
   </file>
   <file>
+    <filename>WayPoint.lua</filename>
+  </file>
+  <file>
     <filename>conf.lua</filename>
   </file>
   <file>
     <filename>disk.lua</filename>
+  </file>
+  <file>
+    <filename>enums.lua</filename>
   </file>
   <file>
     <filename>gamestate.lua</filename>

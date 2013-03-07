@@ -12,7 +12,7 @@ function player.new()
 	self.height = 0 -- height to head
 	self.armLen = 0-- length of arm
 	self.playerId = math.random(1, 1000000) --TODO: Need to take a look at this, and ensure no collisions.
-	
+	self.waypointlist = {}
 	self.isselected = false
 	--print (utilHandler:TranslateXMeterToPixel(self.x))
 	
@@ -63,6 +63,15 @@ function player.new()
 		love.graphics.rotate(-1*self.angle)
 		love.graphics.translate(-1*self:XCenterDistanceFromOrigin(), -1*self:YCenterDistanceFromOrigin())
 		
+		love.graphics.setColor(255,0,0,255)
+		
+		if self.waypointlist ~= nil and self.isselected then
+            for i,v in ipairs(self.waypointlist) do
+                v:draw()
+            
+            end
+        end		
+		
 	end
 	
 	function self:selected()
@@ -85,7 +94,21 @@ function player.new()
 		return self:GetPixelY()+self:GetSidePixel()/2
 	end
 	
+	--TODO: change this to handle rotation
+	function self:pixelInterSection(x, y)
+	    local xMin, xMax, yMin, yMax
+	    xMin = self:GetPixelX()
+	    xMax = xMin+utilHandler:TD(self.front)
+	    yMin = self:GetPixelY()
+	    yMax = yMin+ utilHandler:TD(self.side)
+
+        if x >= xMin and x <= xMax and y>=yMin and y<=yMax then return true else return false end
+	      
+	end
+	
+	
 	return self
 end
+
 
 return player

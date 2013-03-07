@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
-  <command></command>
-  <working_directory></working_directory>
+  <command>C:\Program Files\LoveJIT\love-luajit\love.exe</command>
+  <working_directory>.</working_directory>
   <symbols_directory></symbols_directory>
-  <command_arguments></command_arguments>
+  <command_arguments>C:\Users\chargeorge\Documents\GitHub\Love2DultimatePrototype</command_arguments>
   <scc>
     <provider></provider>
     <user></user>
