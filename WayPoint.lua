@@ -7,6 +7,8 @@ function WayPoint.new(x,y)
     self.x = x
     self.y = y
     
+    
+    
     function self:draw()
         love.graphics.setColor(255, 0, 0, 255 )
         love.graphics.setPoint(4,"smooth")

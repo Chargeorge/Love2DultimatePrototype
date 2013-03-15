@@ -1,5 +1,7 @@
 local player = {}
 local utils = require("utils")
+local enums = require("enums")
+local vector = require("vector")
 function player.new()
 	local self = {}
 	local utilHandler = utils.new()
@@ -14,7 +16,18 @@ function player.new()
 	self.playerId = math.random(1, 1000000) --TODO: Need to take a look at this, and ensure no collisions.
 	self.waypointlist = {}
 	self.isselected = false
+	self.currentAction = enums.NextAction.standStill
+	self.mtrsMovementVector = vector:new(0, 0)
+	
+	--Stats
+	self.mtrsMaxSpeed = 4
+	self.mtrssMaxAccel = 2
+	self.mtrssMaxDeccel = 8
+	self.degsMaxRotate = 360
 	--print (utilHandler:TranslateXMeterToPixel(self.x))
+	
+	--Internals
+	self.CollisionCheckType == enums.CollisionCheckType.box
 	
 	function self:GetPixelX()
 		return utilHandler:TranslateXMeterToPixel(self.x)
@@ -86,9 +99,20 @@ function player.new()
 	
 	function self:GetAngleToPointer()
 		mouseX, mouseY = love.mouse.getPosition( )
-		return math.atan2(mouseX - self:GetPixelX(), mouseY- self:GetPixelY())
+		return self:GetAngleToCoordinates(mouseX, mouseY)
+        --return math.atan2(mouseX - self:GetPixelX(), mouseY- self:GetPixelY())se
 	end
 
+    function self:GetAngleToCoordinatesPixel(x, y)
+        
+		return math.atan2(x - self:GetPixelX(), y- self:GetPixelY())
+    
+    end
+	function self:GetAngleToCoordinates(x, y)
+        
+		return math.atan2(x - self:x, y- self:y)
+    
+    end
 	
 	function self:YCenterDistanceFromOrigin()
 		return self:GetPixelY()+self:GetSidePixel()/2
@@ -104,6 +128,23 @@ function player.new()
 
         if x >= xMin and x <= xMax and y>=yMin and y<=yMax then return true else return false end
 	      
+	end
+	
+	function self:move(secDt)
+	    self.x += self.mtrsMovementVector.x * secDt
+	    self.y += self.mtrsMovementVector.y * secDt
+	    
+	    
+	    local NextWaypoint = waypoint[0]
+	    if self:currentAction == enums.NextAction.standStill then
+	        //Accelerate in a direction
+	    end
+	    else if self:currentAction == enums.NextAction.movingStraight or self:currentAction == enums.NextAction.turnAndMove then
+	        //Check angle/accell and choose to move to either a hard move or a slower turn
+	    end
+	    else if self:currentAction == enums.NextAction.hardTurn then
+            //Hard Move until stop, then set direction towards way point
+        end
 	end
 	
 	
