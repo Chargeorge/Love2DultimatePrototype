@@ -47,7 +47,7 @@ end
 function love.update(dt)
 	--print(mainplayer.angle)
 	--mainplayer.angle = 0
-	--player2.angle = 0
+	player2.angle = math.pi/2
 	if gameState.drawThrowVector and gameState.throwVector ~= nil then
 		gameState.throwVector:SetSelfFromAbsol(love.mouse.getX(),love.mouse.getY())
 	end

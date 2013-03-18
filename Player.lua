@@ -25,7 +25,7 @@ function player.new()
 	self.mtrsMaxSpeed = 4
 	self.mtrssMaxAccel = 2
 	self.mtrssMaxDeccel = 8
-	self.degsMaxRotate = 360
+	self.radsMaxRotate = math.pi*2
 	--print (utilHandler:TranslateXMeterToPixel(self.x))
 	
 	--Internals
@@ -138,15 +138,38 @@ function player.new()
 	    self.y = self.y+(self.mtrsMovementVector.y * secDt)
 	    
 	    
-	    local NextWaypoint = self.waypointlist[0]
+	    local NextWaypoint = self.waypointlist[1]
 		
 	    if self.currentAction == enums.NextAction.standStill then
 	        --Accelerate in a direction
 			if(NextWaypoint ~= nil) then
-			
+			    
 				if collisionCheck:CheckTwoObjects(self, NextWaypoint) then
-					print("hey Im working")
+				    self:removeWayPoint()
+				
+				else
+				    local radAngleToWayPoint = utilHandler.GetAngleToCoordinates(NextWayPoint.x, NextWayPoint.y) --why negative?
+				    --first figure out if the angle is -1 or positive, then Multiply by -1
+				    local normradAngleToWapoint = radAngleToWayPoint % (math.pi *2)
+				    local normAngle = self.angle % (math.pi *2)
+				    
+				    if normAngle > normradAngleToWaypoint then
+				        
+                        angle = normAngle + radsMaxRotate * secDt
+				    elseif  normAngle < normradAngleToWaypoint then
+				        
+                        angle = normAngle - radsMaxRotate * secDt
+				    else
+				    
+				    
+				    end
+				    
+				    -- if angle = radAngleToWaypoint ( do nothing!)
+				    -- if |radAngleToWaypoint - angle| > radsMaxRotate * secDt rotate towards radAngleToWaypoint radsMaxRotate * secDt
+				    -- else set angle = radAngleToWaypoint
+				    
 				end
+				
 			end
 	    elseif self.currentAction == enums.NextAction.movingStraight or self.currentAction == enums.NextAction.turnAndMove then
 	        --Check angle/accell and choose to move to either a hard move or a slower turn
@@ -155,6 +178,12 @@ function player.new()
             --Hard Move until stop, then set direction towards way point
 			self.x = self.x
         end
+	end
+	
+	--Waypoint related
+	function self:removeWayPoint()
+	    
+        table.remove(self.waypointlist, 1)
 	end
 	
 	--BOUNDING BOX RELATED FUNCTIONS
