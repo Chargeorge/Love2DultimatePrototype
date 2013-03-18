@@ -147,6 +147,20 @@ function player.new()
         end
 	end
 	
+	--BOUNDING BOX RELATED FUNCTIONS
+	function self:metULx()
+		return self.x
+	end
+	
+	function self:metURx()
+		return (self.x + self.front)
+	end
+	function self:metBLy()
+		return (self.y+self.side)
+	end
+	function self:metULy()
+		return self.y
+	end
 	
 	return self
 end

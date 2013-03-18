@@ -18,7 +18,7 @@ letPhysicsHappen = 3
 local CollisionCheckType = {
     box = 0,
     point = 1,
-    
+    straightBox = 2
 }
 
 Enums.NextAction = NextAction
