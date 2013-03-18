@@ -4,6 +4,8 @@ function Vector.new(xUser, yUser, zUser) --IN METERS
 	local self ={}
 	local utilFuncs = require("Utils")
 	local UtilFuncs = utilFuncs.new()
+	print ("Xuser: ")
+	print (xUser)
 	self.x =xUser
 	self.y = yUser
 	self.z = zUser

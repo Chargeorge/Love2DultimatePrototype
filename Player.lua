@@ -2,9 +2,11 @@ local player = {}
 local utils = require("utils")
 local enums = require("enums")
 local vector = require("vector")
+local collisionChecker = require("collisionChecker")
 function player.new()
 	local self = {}
 	local utilHandler = utils.new()
+	local collisionCheck = collisionChecker:new()
 	self.x  = 40 -- need to create a coordinate system
 	self.y = 40 
 	self.side = .8;
@@ -17,7 +19,7 @@ function player.new()
 	self.waypointlist = {}
 	self.isselected = false
 	self.currentAction = enums.NextAction.standStill
-	self.mtrsMovementVector = vector:new(0, 0)
+	self.mtrsMovementVector = vector.new(0, 0,0)
 	
 	--Stats
 	self.mtrsMaxSpeed = 4
@@ -27,7 +29,7 @@ function player.new()
 	--print (utilHandler:TranslateXMeterToPixel(self.x))
 	
 	--Internals
-	self.CollisionCheckType == enums.CollisionCheckType.box
+	self.CollisionCheckType = enums.CollisionCheckType.box
 	
 	function self:GetPixelX()
 		return utilHandler:TranslateXMeterToPixel(self.x)
@@ -99,7 +101,7 @@ function player.new()
 	
 	function self:GetAngleToPointer()
 		mouseX, mouseY = love.mouse.getPosition( )
-		return self:GetAngleToCoordinates(mouseX, mouseY)
+		return self:GetAngleToCoordinatesPixel(mouseX, mouseY)
         --return math.atan2(mouseX - self:GetPixelX(), mouseY- self:GetPixelY())se
 	end
 
@@ -110,7 +112,7 @@ function player.new()
     end
 	function self:GetAngleToCoordinates(x, y)
         
-		return math.atan2(x - self:x, y- self:y)
+		return math.atan2(x - self.x, y- self.y)
     
     end
 	
@@ -131,34 +133,42 @@ function player.new()
 	end
 	
 	function self:move(secDt)
-	    self.x += self.mtrsMovementVector.x * secDt
-	    self.y += self.mtrsMovementVector.y * secDt
+		print(self.mtrsMovementVector.x)
+	    self.x = self.x+(self.mtrsMovementVector.x * secDt)
+	    self.y = self.y+(self.mtrsMovementVector.y * secDt)
 	    
 	    
-	    local NextWaypoint = waypoint[0]
-	    if self:currentAction == enums.NextAction.standStill then
-	        //Accelerate in a direction
-	    end
-	    else if self:currentAction == enums.NextAction.movingStraight or self:currentAction == enums.NextAction.turnAndMove then
-	        //Check angle/accell and choose to move to either a hard move or a slower turn
-	    end
-	    else if self:currentAction == enums.NextAction.hardTurn then
-            //Hard Move until stop, then set direction towards way point
+	    local NextWaypoint = self.waypointlist[0]
+		
+	    if self.currentAction == enums.NextAction.standStill then
+	        --Accelerate in a direction
+			if(NextWaypoint ~= nil) then
+			
+				if collisionCheck:CheckTwoObjects(self, NextWaypoint) then
+					print("hey Im working")
+				end
+			end
+	    elseif self.currentAction == enums.NextAction.movingStraight or self.currentAction == enums.NextAction.turnAndMove then
+	        --Check angle/accell and choose to move to either a hard move or a slower turn
+			self.x = self.x
+	    elseif self.currentAction == enums.NextAction.hardTurn then
+            --Hard Move until stop, then set direction towards way point
+			self.x = self.x
         end
 	end
 	
 	--BOUNDING BOX RELATED FUNCTIONS
-	function self:metULx()
+	function self:mtrULx()
 		return self.x
 	end
 	
-	function self:metURx()
+	function self:mtrURx()
 		return (self.x + self.front)
 	end
-	function self:metBLy()
+	function self:mtrBLy()
 		return (self.y+self.side)
 	end
-	function self:metULy()
+	function self:mtrULy()
 		return self.y
 	end
 	

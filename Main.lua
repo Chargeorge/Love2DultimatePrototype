@@ -39,19 +39,20 @@ function love.draw()
 	wayPointer:draw()
 	gamedisk:draw()
 	if gameState.drawThrowVector and gameState.throwVector ~= nil then
-		print "drawin"
+		
 		gameState.throwVector:draw();
 	end
 end
 
 function love.update(dt)
-	mainplayer.angle = -1*mainplayer:GetAngleToPointer()
-	player2.angle = -1*player2:GetAngleToPointer()
+	--print(mainplayer.angle)
+	--mainplayer.angle = 0
+	--player2.angle = 0
 	if gameState.drawThrowVector and gameState.throwVector ~= nil then
 		gameState.throwVector:SetSelfFromAbsol(love.mouse.getX(),love.mouse.getY())
 	end
 	gamedisk:updateposition(dt)
-
+	mainplayer:move(dt)
 end
 
 function GetSelectedPlayer()
