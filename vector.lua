@@ -4,8 +4,7 @@ function Vector.new(xUser, yUser, zUser) --IN METERS
 	local self ={}
 	local utilFuncs = require("Utils")
 	local UtilFuncs = utilFuncs.new()
-	print ("Xuser: ")
-	print (xUser)
+
 	self.x =xUser
 	self.y = yUser
 	self.z = zUser
@@ -55,6 +54,10 @@ function Vector.new(xUser, yUser, zUser) --IN METERS
 		self.y = UtilFuncs:TDPixel(absolY - absolStartY)
 	end
 	
+	function self:SetSelfFromMagAngle(mtrMagnitude, radAngle)
+	    self.x = math.sin(radAngle) * mtrMagnitude;
+	    self.y = math.cos(radAngle) * mtrMagnitude;
+	end
 	
 	return self
 end

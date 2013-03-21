@@ -22,6 +22,7 @@ function love.load()
 	gamedisk:caught(player2)
     
 	player2:selected()
+	player2.angle = math.pi/2
 	playerobjs = {mainplayer, player2}
 	testVector = vector.new(10,10)
 	testVector.origX = player2.x;
@@ -47,7 +48,7 @@ end
 function love.update(dt)
 	--print(mainplayer.angle)
 	--mainplayer.angle = 0
-	player2.angle = math.pi/2
+
 	if gameState.drawThrowVector and gameState.throwVector ~= nil then
 		gameState.throwVector:SetSelfFromAbsol(love.mouse.getX(),love.mouse.getY())
 	end
@@ -97,11 +98,9 @@ function love.mousereleased(x,y, button)
         if  gamedisk.posessingPlayer.playerId == gameState.selectedPlayer.playerId   then
             gameState.drawThrowVector = false
             gamedisk:throw(gameState.throwVector)
-        
         else
             table.insert(gameState.selectedPlayer.waypointlist, waypoint.new(gameState.Utils:TranslateXPixelToMeter(x), gameState.Utils:TranslateYPixelToMeter(y)))
         end
-        
     end
 end
 

@@ -72,7 +72,7 @@ function player.new()
 		
 		love.graphics.setColor(20, 20, 20, 255)
 		
-		love.graphics.point(self:XCenterDistanceFromOrigin(), self:GetPixelY()+self:GetSidePixel())--
+		love.graphics.point(self:XCenterDistanceFromOrigin(), self:GetPixelY())--
 		
 		love.graphics.translate(self:XCenterDistanceFromOrigin(), self:YCenterDistanceFromOrigin())
 		love.graphics.rotate(-1*self.angle)
@@ -148,19 +148,26 @@ function player.new()
 				    self:removeWayPoint()
 				
 				else
-				    local radAngleToWayPoint = utilHandler.GetAngleToCoordinates(NextWayPoint.x, NextWayPoint.y) --why negative?
+				    local radAngleToWayPoint = self:GetAngleToCoordinates(NextWaypoint.x, NextWaypoint.y) 
 				    --first figure out if the angle is -1 or positive, then Multiply by -1
-				    local normradAngleToWapoint = radAngleToWayPoint % (math.pi *2)
-				    local normAngle = self.angle % (math.pi *2)
+				    
+				    local normradAngleToWaypoint = (radAngleToWayPoint+ math.pi*2) % (math.pi *2) --handle when negative or > 2pi
+				    local normAngle = (self.angle + math.pi*2) % (math.pi *2)
 				    
 				    if normAngle > normradAngleToWaypoint then
 				        
-                        angle = normAngle + radsMaxRotate * secDt
+                        angle = normAngle + self.radsMaxRotate * secDt
+                        --TODO: add back some acceleration
 				    elseif  normAngle < normradAngleToWaypoint then
 				        
-                        angle = normAngle - radsMaxRotate * secDt
+                        angle = normAngle - self.radsMaxRotate * secDt
+                        
+                        --TODO: add back some acceleration
 				    else
-				    
+				        -- accellmag = accell*secDT, unless Acceleration * secDt > maxSpeed, in which case mag of new vector = maxSpeed
+				        local mtrsAccelerationThisFrame = self.mtrssMaxAccell * secDt 
+                        self.mtrsMovementVector:SetSelfFromMagAngle(mtrsAccelerationThisFrame, self.angle)
+				        self.currentAction = enums.NextAction.movingStraight				        
 				    
 				    end
 				    
@@ -173,7 +180,15 @@ function player.new()
 			end
 	    elseif self.currentAction == enums.NextAction.movingStraight or self.currentAction == enums.NextAction.turnAndMove then
 	        --Check angle/accell and choose to move to either a hard move or a slower turn
-			self.x = self.x
+			if(NextWaypoint ~= nil) then
+			    
+				if collisionCheck:CheckTwoObjects(self, NextWaypoint) then
+				    self:removeWayPoint()
+				    self.mtrsMovementVector = Vector:new(0,0,0) --TODO decelerate
+				    self.currentAction = enums.NextAction.standStill
+				end
+				
+			end
 	    elseif self.currentAction == enums.NextAction.hardTurn then
             --Hard Move until stop, then set direction towards way point
 			self.x = self.x

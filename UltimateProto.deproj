@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
   <file>
+    <filename>CollisionChecker.lua</filename>
+  </file>
+  <file>
     <filename>Field.Lua</filename>
   </file>
   <file>

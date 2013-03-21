@@ -1,5 +1,0 @@
-VectorLib = {}
-function VectorLib:Add(Vec1, Vec2)
-	var returnalbe
-
-end
