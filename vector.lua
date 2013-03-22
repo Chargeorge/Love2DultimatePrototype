@@ -14,7 +14,7 @@ function Vector.new(xUser, yUser, zUser) --IN METERS
 	
 	function self:Add( Vec2)
 		local returnable =  Vector.new(( self.x+Vec2.x ), (self.y+ Vec2.y))
-		return returnablee
+		return returnable
 	end
 
 	function self:Magnitude()

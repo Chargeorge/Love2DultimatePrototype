@@ -65,6 +65,7 @@ function player.new()
 		love.graphics.translate(self:XCenterDistanceFromOrigin(), self:YCenterDistanceFromOrigin())
 		love.graphics.rotate(self.angle)
 		love.graphics.translate(-1*self:XCenterDistanceFromOrigin(), -1*self:YCenterDistanceFromOrigin())
+		print(self.angle)
 		
 		love.graphics.rectangle("fill", self:GetPixelX(), self:GetPixelY(), utilHandler:TD(self.front), utilHandler:TD(self.side) );
 		love.graphics.setPointSize(5)
@@ -93,6 +94,10 @@ function player.new()
 		self.isselected = true
 	end
 	
+	function self:GetCenterCoordinates()
+	    return self.x+self.front/2, self.y+self.side/2
+	end
+	
 	
 	function self:XCenterDistanceFromOrigin()
 		
@@ -111,8 +116,8 @@ function player.new()
     
     end
 	function self:GetAngleToCoordinates(x, y)
-        
-		return math.atan2(x - self.x, y- self.y)
+        local centerX, centerY  = self:GetCenterCoordinates()
+		return math.atan2(x - centerX, y- centerY)
     
     end
 	
@@ -133,7 +138,7 @@ function player.new()
 	end
 	
 	function self:move(secDt)
-		print(self.mtrsMovementVector.x)
+		
 	    self.x = self.x+(self.mtrsMovementVector.x * secDt)
 	    self.y = self.y+(self.mtrsMovementVector.y * secDt)
 	    
@@ -155,17 +160,25 @@ function player.new()
 				    local normAngle = (self.angle + math.pi*2) % (math.pi *2)
 				    
 				    if normAngle > normradAngleToWaypoint then
-				        
-                        angle = normAngle + self.radsMaxRotate * secDt
+				        local newAngle = (normAngle - self.radsMaxRotate * secDt) % (math.pi *2)
+				        if newAngle > normradAngleToWaypoint then
+                            self.angle = newAngle
+                        else
+                            self.angle = normradAngleToWaypoint
+                        end
                         --TODO: add back some acceleration
 				    elseif  normAngle < normradAngleToWaypoint then
-				        
-                        angle = normAngle - self.radsMaxRotate * secDt
+				        local newAngle =(normAngle + self.radsMaxRotate * secDt) % (math.pi *2)
+                        if newAngle < normradAngleToWaypoint then
+                            self.angle = newAngle
+                        else
+                            self.angle = normradAngleToWaypoint
+                        end
                         
                         --TODO: add back some acceleration
 				    else
 				        -- accellmag = accell*secDT, unless Acceleration * secDt > maxSpeed, in which case mag of new vector = maxSpeed
-				        local mtrsAccelerationThisFrame = self.mtrssMaxAccell * secDt 
+				        local mtrsAccelerationThisFrame = self.mtrssMaxAccel * secDt 
                         self.mtrsMovementVector:SetSelfFromMagAngle(mtrsAccelerationThisFrame, self.angle)
 				        self.currentAction = enums.NextAction.movingStraight				        
 				    
@@ -184,11 +197,23 @@ function player.new()
 			    
 				if collisionCheck:CheckTwoObjects(self, NextWaypoint) then
 				    self:removeWayPoint()
-				    self.mtrsMovementVector = Vector:new(0,0,0) --TODO decelerate
+				    self.mtrsMovementVector = vector.new(0,0,0) --TODO decelerate
 				    self.currentAction = enums.NextAction.standStill
-				end
-				
-			end
+				else
+				    -- continue accelerating
+				    
+                    local mtrsAccelerationThisFrame = self.mtrssMaxAccel * secDt 
+                    local mtrsAccelerationVector = vector.new(0,0,0)
+                    mtrsAccelerationVector:SetSelfFromMagAngle(mtrsAccelerationThisFrame, self.angle)
+                    local mtrsNewMovementVector = self.mtrsMovementVector:Add( mtrsAccelerationVector )
+                    if (mtrsNewMovementVector:Magnitude() < self.mtrsMaxSpeed) then
+                    
+                        self.mtrsMovementVector = self.mtrsMovementVector:Add(mtrsAccelerationVector)
+                    else
+                        self.mtrsMovementVector:SetSelfFromMagAngle(self.mtrsMaxSpeed, self.angle)
+                    end-- maxcheck
+				end--collisionCheckElse
+			end --waypoint check
 	    elseif self.currentAction == enums.NextAction.hardTurn then
             --Hard Move until stop, then set direction towards way point
 			self.x = self.x
