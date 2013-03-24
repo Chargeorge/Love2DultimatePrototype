@@ -56,7 +56,7 @@ function Vector.new(xUser, yUser, zUser) --IN METERS
 	
 	function self:SetSelfFromMagAngle(mtrMagnitude, radAngle)
 	    self.x = math.sin(radAngle) * mtrMagnitude;
-	    self.y = math.cos(radAngle) * mtrMagnitude;
+	    self.y = -1*math.cos(radAngle) * mtrMagnitude;
 	end
 	
 	return self

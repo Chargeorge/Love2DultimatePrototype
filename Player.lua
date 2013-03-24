@@ -69,7 +69,7 @@ function player.new()
 		
 		love.graphics.rectangle("fill", self:GetPixelX(), self:GetPixelY(), utilHandler:TD(self.front), utilHandler:TD(self.side) );
 		love.graphics.setPointSize(5)
-		
+		--
 		
 		love.graphics.setColor(20, 20, 20, 255)
 		
@@ -80,6 +80,10 @@ function player.new()
 		love.graphics.translate(-1*self:XCenterDistanceFromOrigin(), -1*self:YCenterDistanceFromOrigin())
 		
 		love.graphics.setColor(255,0,0,255)
+		self.mtrsMovementVector.origX = self.x
+		self.mtrsMovementVector.origY = self.y
+		
+		self.mtrsMovementVector:draw()
 		
 		if self.waypointlist ~= nil and self.isselected then
             for i,v in ipairs(self.waypointlist) do
@@ -112,12 +116,12 @@ function player.new()
 
     function self:GetAngleToCoordinatesPixel(x, y)
         
-		return math.atan2(x - self:GetPixelX(), y- self:GetPixelY())
+		return math.atan2(x - self:GetPixelX(), self:GetPixelY()- y ) --- Coordinate system is transposed over Y axis
     
     end
 	function self:GetAngleToCoordinates(x, y)
-        local centerX, centerY  = self:GetCenterCoordinates()
-		return math.atan2(x - centerX, y- centerY)
+        local centerX, centerY  = self:GetCenterCoordinates() --- Coordinate system is transposed over Y axis
+		return math.atan2(x - centerX,  centerY - y)
     
     end
 	
@@ -156,8 +160,9 @@ function player.new()
 				    local radAngleToWayPoint = self:GetAngleToCoordinates(NextWaypoint.x, NextWaypoint.y) 
 				    --first figure out if the angle is -1 or positive, then Multiply by -1
 				    
-				    local normradAngleToWaypoint = (radAngleToWayPoint+ math.pi*2) % (math.pi *2) --handle when negative or > 2pi
-				    local normAngle = (self.angle + math.pi*2) % (math.pi *2)
+				    local normradAngleToWaypoint = utilHandler:round((radAngleToWayPoint+ math.pi*2) % (math.pi *2),5) --handle when negative or > 2pi
+				    
+                    local normAngle = utilHandler:round((self.angle + math.pi*2) % (math.pi *2),5)
 				    
 				    if normAngle > normradAngleToWaypoint then
 				        local newAngle = (normAngle - self.radsMaxRotate * secDt) % (math.pi *2)

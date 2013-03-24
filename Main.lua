@@ -10,13 +10,15 @@ debugFlg = false
 
 
 function love.load()
-    wayPointer = waypoint.new(60,30)
+    wayPointer = waypoint.new(15,15)
+    
 	mainplayer = player.new()
 	player2 = player.new()
 	player2.x = 20
 	player2.y = 20
 	mainplayer.x = 15
 	mainplayer.y = 38
+	--table.insert(mainplayer.waypointlist, wayPointer)
 	gamedisk = disk.new()
 	Field = field.new()
 	gamedisk:caught(player2)
@@ -24,9 +26,9 @@ function love.load()
 	player2:selected()
 	player2.angle = math.pi/2
 	playerobjs = {mainplayer, player2}
-	testVector = vector.new(10,10)
-	testVector.origX = player2.x;
-	testVector.origY = player2.y;
+	--testVector = vector.new(10,10)
+	--testVector.origX = player2.x;
+	--testVector.origY = player2.y;
 	gameState = gamestate.new()
 	gameState.throwVector = nil
 	gameState.drawThrowVector = false
@@ -36,6 +38,7 @@ end
 function love.draw()
 	Field:draw()
 	mainplayer:draw()
+
 	player2:draw()
 	wayPointer:draw()
 	gamedisk:draw()
@@ -48,7 +51,9 @@ end
 function love.update(dt)
 	--print(mainplayer.angle)
 	--mainplayer.angle = 0
-
+    player2.angle = player2.angle + (math.pi/4) * dt
+    
+    
 	if gameState.drawThrowVector and gameState.throwVector ~= nil then
 		gameState.throwVector:SetSelfFromAbsol(love.mouse.getX(),love.mouse.getY())
 	end
@@ -99,6 +104,8 @@ function love.mousereleased(x,y, button)
             gameState.drawThrowVector = false
             gamedisk:throw(gameState.throwVector)
         else
+        --TODO make this a method in the player
+
             table.insert(gameState.selectedPlayer.waypointlist, waypoint.new(gameState.Utils:TranslateXPixelToMeter(x), gameState.Utils:TranslateYPixelToMeter(y)))
         end
     end
