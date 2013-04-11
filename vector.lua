@@ -59,6 +59,14 @@ function Vector.new(xUser, yUser, zUser) --IN METERS
 	    self.y = -1*math.cos(radAngle) * mtrMagnitude;
 	end
 	
+	function self:clone()
+	    local Returnable = Vector.new(self.x, self.y, self.z)
+	    Returnable.origX = self.origX
+	    Returnable.origY = self.origY
+	    return Returnable
+	end
+	
+	
 	return self
 end
 return Vector

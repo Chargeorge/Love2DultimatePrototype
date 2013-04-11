@@ -25,7 +25,8 @@ function disk.new()
 	self.velocityVector = Vector.new( 10,  10,  0) -- Absolute m/s
 	self.radius = .5
 	self.posessingPlayer = {}
-	
+	self.estimatedPosition = nil --= disk.new() Create a disk, launch it, run through a full move
+	self.color = {r=255,g=255,b=255,alpha=255}
 	local zConstant = .5
 	local gravityDefault = .07
 	
@@ -35,6 +36,7 @@ function disk.new()
 		self.velocityVector = velVector
 		self.z = 1.5
 		self.posessingPlayer = {}
+		self:EstimateFinalPosition(.017) --TODO: remove hacked in value
 	end
 	
 	
@@ -68,6 +70,20 @@ function disk.new()
 			self.z = 1
 		end
 	end
+	
+	function self:EstimateFinalPosition(dt) 
+	    self.estimatedPosition = disk.new()
+	    self.estimatedPosition.x = self.x
+	    self.estimatedPosition.y = self.y
+	    self.estimatedPosition.z = self.z
+	    self.estimatedPosition.color = {r=0,g=255,b=255,alpha=255}
+	    self.estimatedPosition.velocityVector = self.velocityVector:clone()
+	    while self.estimatedPosition.z > 0 do
+	        self.estimatedPosition:updateposition(dt)
+	    end
+	    
+    end
+	
 	function self:updateFlightVector(dt)
 		if self.z > 0 and self.currentDiskState == self.staticDiskState.inflight then
 			
@@ -83,12 +99,13 @@ function disk.new()
 		self.posessingPlayer = player
 	end
 	
-	
-	
-	
 	function self:draw()
-		love.graphics.setColor(255,255,255,255)	
+		love.graphics.setColor(self.color.r,self.color.g,self.color.b,self.color.alpha)	
 		love.graphics.circle("fill", UtilFuncs:TranslateXMeterToPixel(self.x), UtilFuncs:TranslateYMeterToPixel(self.y), (UtilFuncs:TD(self.radius) * (1+self.z/10) ))
+		
+		if self.estimatedPosition ~= nil then
+		    self.estimatedPosition:draw()
+		end
 	end
 	return self
 
