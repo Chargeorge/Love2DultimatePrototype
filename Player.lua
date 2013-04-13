@@ -3,6 +3,7 @@ local utils = require("utils")
 local enums = require("enums")
 local vector = require("vector")
 local collisionChecker = require("collisionChecker")
+local boundingBox = require("boundingbox")
 function player.new()
 	local self = {}
 	local utilHandler = utils.new()
@@ -20,7 +21,7 @@ function player.new()
 	self.isselected = false
 	self.currentAction = enums.NextAction.standStill
 	self.mtrsMovementVector = vector.new(0, 0,0)
-	
+	self.myBoundingBox = boundingBox.new(self.x, self.y, self.front, self.side)
 	--Stats
 	self.mtrsMaxSpeed = 4
 	self.mtrssMaxAccel = 2
@@ -29,7 +30,6 @@ function player.new()
 	--print (utilHandler:TranslateXMeterToPixel(self.x))
 	
 	--Internals
-	self.CollisionCheckType = enums.CollisionCheckType.box
 	
 	function self:GetPixelX()
 		return utilHandler:TranslateXMeterToPixel(self.x)
@@ -84,7 +84,7 @@ function player.new()
 		self.mtrsMovementVector.origY = self.y
 		
 		self.mtrsMovementVector:draw()
-		
+		self.myBoundingBox:draw()
 		if self.waypointlist ~= nil and self.isselected then
             for i,v in ipairs(self.waypointlist) do
                 v:draw()
@@ -145,7 +145,7 @@ function player.new()
 		
 	    self.x = self.x+(self.mtrsMovementVector.x * secDt)
 	    self.y = self.y+(self.mtrsMovementVector.y * secDt)
-	    
+	    self.myBoundingBox:updateXY(self.x,self.y)
 	    
 	    local NextWaypoint = self.waypointlist[1]
 		
@@ -232,20 +232,7 @@ function player.new()
 	end
 	
 	--BOUNDING BOX RELATED FUNCTIONS
-	function self:mtrULx()
-		return self.x
-	end
-	
-	function self:mtrURx()
-		return (self.x + self.front)
-	end
-	function self:mtrBLy()
-		return (self.y+self.side)
-	end
-	function self:mtrULy()
-		return self.y
-	end
-	
+	--REMOVED TO IT'S OWN OBJECT :)
 	return self
 end
 

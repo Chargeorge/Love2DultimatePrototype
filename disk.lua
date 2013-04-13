@@ -1,5 +1,7 @@
 local disk = {}
-
+local utilFuncs = require("Utils")
+local Vector = require("vector")
+local boundingBox = require("boundingbox")
 function CreateDiskState()
 	return 	{ground = 1,
 	playerhand = 2,
@@ -8,16 +10,14 @@ end
 
 function disk.new()
 	--[[Loading section ]]
-	local utilFuncs = require("Utils")
 	local UtilFuncs = utilFuncs.new()
 	
-	local Vector = require("vector")
 	
 	local self = {}
 	
 	self.staticDiskState = CreateDiskState()
 	self.currentDiskState = self.staticDiskState.inflight
-
+	
 	self.x = 30 -- left point in meters
 	self.y = 30 -- Top point in meters
 	self.z = 1 
@@ -29,7 +29,8 @@ function disk.new()
 	self.color = {r=255,g=255,b=255,alpha=255}
 	local zConstant = .5
 	local gravityDefault = .07
-	
+	self.myBoundingBox = boundingBox.new(self.x,self.y, self.radius*2, self.radius*2)
+
 	--[[Throwing methods]]
 	function self:throw(velVector)
 		self.currentDiskState = self.staticDiskState.inflight
@@ -69,6 +70,7 @@ function disk.new()
 			--print (self.y)
 			self.z = 1
 		end
+		self.myBoundingBox:updateXY(self.x, self.y)
 	end
 	
 	function self:EstimateFinalPosition(dt) 
@@ -102,11 +104,13 @@ function disk.new()
 	function self:draw()
 		love.graphics.setColor(self.color.r,self.color.g,self.color.b,self.color.alpha)	
 		love.graphics.circle("fill", UtilFuncs:TranslateXMeterToPixel(self.x), UtilFuncs:TranslateYMeterToPixel(self.y), (UtilFuncs:TD(self.radius) * (1+self.z/10) ))
-		
-		if self.estimatedPosition ~= nil then
+		self.myBoundingBox:draw()
+		if self.estimatedPosition ~= nil and self.currentDiskState == self.staticDiskState.inflight then
 		    self.estimatedPosition:draw()
 		end
 	end
+	
+	
 	return self
 
 end

@@ -51,7 +51,7 @@ end
 function love.update(dt)
 	--print(mainplayer.angle)
 	--mainplayer.angle = 0
-    player2.angle = player2.angle + (math.pi/4) * dt
+    
     
     
 	if gameState.drawThrowVector and gameState.throwVector ~= nil then
@@ -59,6 +59,7 @@ function love.update(dt)
 	end
 	gamedisk:updateposition(dt)
 	mainplayer:move(dt)
+	player2:move(dt)
 end
 
 function GetSelectedPlayer()
@@ -103,6 +104,8 @@ function love.mousereleased(x,y, button)
         if  gamedisk.posessingPlayer.playerId == gameState.selectedPlayer.playerId   then
             gameState.drawThrowVector = false
             gamedisk:throw(gameState.throwVector)
+			
+			gameState.posessingPlayer = nil
         else
         --TODO make this a method in the player
 
