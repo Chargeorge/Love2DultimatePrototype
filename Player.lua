@@ -200,7 +200,7 @@ function player.new()
 	        --Check angle/accell and choose to move to either a hard move or a slower turn
 			if(NextWaypoint ~= nil) then
 			    
-				if collisionCheck:CheckTwoObjects(self, NextWaypoint) then
+				if collisionCheck:CheckTwoObjects(self.myBoundingBox, NextWaypoint) then
 				    self:removeWayPoint()
 				    self.mtrsMovementVector = vector.new(0,0,0) --TODO decelerate
 				    self.currentAction = enums.NextAction.standStill
