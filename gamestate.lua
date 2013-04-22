@@ -1,13 +1,38 @@
 local gamestate = {}
 local utils = require("utils")
 function gamestate.new()
-	self.playerTeam = 0
+	--Ulti Rules globals
+	self.posessingTeam = 0
+	self.posessingPlayer = nil
+	self.gameDisc = nil
+	
+	--Interaction Rules globals
 	self.selectedPlayer  = nil
 	self.throwVector = nil
 	self.drawThrowVector = false
-	self.posessingPlayer = nil
+	
+	
+	
 	self.Utils = utils.new()
-    return self
+    
+	--UltiRules
+	function self:pickupDisc(player)
+		--TODO add side checking
+		--Pickup disc
+		
+		self.gameDisc.caught(player)
+		
+	end
+	
+	function self:catchDisc(player)
+	
+	end
+	
+	function self:interceptDisc(player)
+	
+	end
+	
+	return self
 
 end
 

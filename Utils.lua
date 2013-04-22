@@ -21,6 +21,7 @@ function utils.new()
 	end
 	function self:TranslateYMeterToPixel(y)
 		local  TranslatedY
+		
 		TranslatedY = (y*self.PixelMeterConversion)+self.StartField.y
 	
 		return math.floor(TranslatedY + .5)
