@@ -8,13 +8,13 @@ function CreateDiskState()
 	inflight = 3}
 end
 
-function disk.new()
+function disk.new(gameState)
 	--[[Loading section ]]
 	local UtilFuncs = utilFuncs.new()
 	
 	
 	local self = {}
-	
+	self.gameState = gameState
 	self.staticDiskState = CreateDiskState()
 	self.currentDiskState = self.staticDiskState.ground
 	
@@ -80,7 +80,8 @@ function disk.new()
 	    self.estimatedPosition.z = self.z
 	    self.estimatedPosition.color = {r=0,g=255,b=255,alpha=255}
 	    self.estimatedPosition.velocityVector = self.velocityVector:clone()
-	    while self.estimatedPosition.z > 0 do
+	    self.estimatedPosition.currentDiskState = self.staticDiskState.inflight
+        while self.estimatedPosition.z > 0 do
 	        self.estimatedPosition:updateposition(dt)
 	    end
 	    
@@ -99,6 +100,7 @@ function disk.new()
 	function self:caught(player)
 		self.currentDiskState = self.staticDiskState.playerhand
 		self.posessingPlayer = player
+
 	end
 	
 	function self:draw()

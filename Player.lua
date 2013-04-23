@@ -158,11 +158,8 @@ function player.new(gameState)
 			if(NextWaypoint ~= nil) then
 			    
 				if collisionCheck:CheckTwoObjects(self, NextWaypoint) then
-				    
 					-- TODO: add discy logic
 					self:removeWayPoint()
-					
-				
 				else
 				    local radAngleToWayPoint = self:GetAngleToCoordinates(NextWaypoint.x, NextWaypoint.y) 
 				    --first figure out if the angle is -1 or positive, then Multiply by -1
@@ -210,7 +207,7 @@ function player.new(gameState)
 				    self.currentAction = enums.NextAction.standStill
 									
 				elseif collisionCheck:CheckTwoObjects(self.myBoundingBox, gameState.gameDisc.myBoundingBox) then
-					print "Player disc colliding"
+					
                     --Check Air or ground
 					--If Air
 						-- Check height
@@ -225,7 +222,7 @@ function player.new(gameState)
 					else
 						self.mtrsMovementVector = vector.new(0,0,0)
 						self.currentAction = enums.NextAction.standStill
-						
+						gameState.gameDisc:caught(self)
 					end -- end flight check
 				
 				else

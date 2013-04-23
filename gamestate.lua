@@ -20,7 +20,7 @@ function gamestate.new()
 	function self:pickupDisc(player)
 		--TODO add side checking
 		--Pickup disc
-		
+		self.posessingPlayer = player
 		self.gameDisc.caught(player)
 		
 	end
