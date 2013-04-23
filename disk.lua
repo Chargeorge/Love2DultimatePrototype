@@ -29,7 +29,7 @@ function disk.new()
 	self.color = {r=255,g=255,b=255,alpha=255}
 	local zConstant = .5
 	local gravityDefault = .07
-	self.myBoundingBox = boundingBox.new(self.x,self.y, self.radius*2, self.radius*2)
+	self.myBoundingBox = boundingBox.new(self.x-self.radius,self.y-self.radius, self.radius*2, self.radius*2)
 
 	--[[Throwing methods]]
 	function self:throw(velVector)
@@ -70,7 +70,7 @@ function disk.new()
 			--print (self.y)
 			self.z = 1
 		end
-		self.myBoundingBox:updateXY(self.x, self.y)
+		self.myBoundingBox:updateXY(self.x-self.radius, self.y-self.radius)
 	end
 	
 	function self:EstimateFinalPosition(dt) 
@@ -110,6 +110,9 @@ function disk.new()
 		end
 	end
 	
+	function self:pixelIntersection(x,y)
+		return self.myBoundingBox:pixelInterSection(x,y)
+	end
 	
 	return self
 

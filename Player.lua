@@ -4,7 +4,8 @@ local enums = require("enums")
 local vector = require("vector")
 local collisionChecker = require("collisionChecker")
 local boundingBox = require("boundingbox")
-function player.new()
+
+function player.new(gameState)
 	local self = {}
 	local utilHandler = utils.new()
 	local collisionCheck = collisionChecker:new()
@@ -28,7 +29,7 @@ function player.new()
 	self.mtrssMaxDeccel = 8
 	self.radsMaxRotate = math.pi*2
 	--print (utilHandler:TranslateXMeterToPixel(self.x))
-	
+	self.gameState = gameState
 	--Internals
 	
 	function self:GetPixelX()
@@ -65,7 +66,7 @@ function player.new()
 		love.graphics.translate(self:XCenterDistanceFromOrigin(), self:YCenterDistanceFromOrigin())
 		love.graphics.rotate(self.angle)
 		love.graphics.translate(-1*self:XCenterDistanceFromOrigin(), -1*self:YCenterDistanceFromOrigin())
-		print(self.angle)
+		--print(self.angle)
 		
 		love.graphics.rectangle("fill", self:GetPixelX(), self:GetPixelY(), utilHandler:TD(self.front), utilHandler:TD(self.side) );
 		love.graphics.setPointSize(5)
@@ -132,12 +133,15 @@ function player.new()
 	--TODO: change this to handle rotation
 	function self:pixelInterSection(x, y)
 	    local xMin, xMax, yMin, yMax
-	    xMin = self:GetPixelX()
-	    xMax = xMin+utilHandler:TD(self.front)
-	    yMin = self:GetPixelY()
-	    yMax = yMin+ utilHandler:TD(self.side)
+	    --xMin = self:GetPixelX()
+	    --xMax = xMin+utilHandler:TD(self.front)
+		yMin = self:GetPixelY()
+	    print ("Player Y " .. yMin .. " player Y meter " .. self.y)
+		--yMax = yMin+ utilHandler:TD(self.side)
 
-        if x >= xMin and x <= xMax and y>=yMin and y<=yMax then return true else return false end
+        --if x >= xMin and x <= xMax and y>=yMin and y<=yMax then return true else return false end
+		
+		return self.myBoundingBox:pixelInterSection(x,y)
 	      
 	end
 	
@@ -154,16 +158,16 @@ function player.new()
 			if(NextWaypoint ~= nil) then
 			    
 				if collisionCheck:CheckTwoObjects(self, NextWaypoint) then
-				    self:removeWayPoint()
+				    
+					-- TODO: add discy logic
+					self:removeWayPoint()
+					
 				
 				else
 				    local radAngleToWayPoint = self:GetAngleToCoordinates(NextWaypoint.x, NextWaypoint.y) 
 				    --first figure out if the angle is -1 or positive, then Multiply by -1
-				    
 				    local normradAngleToWaypoint = utilHandler:round((radAngleToWayPoint+ math.pi*2) % (math.pi *2),5) --handle when negative or > 2pi
-				    
                     local normAngle = utilHandler:round((self.angle + math.pi*2) % (math.pi *2),5)
-				    
 				    if normAngle > normradAngleToWaypoint then
 				        local newAngle = (normAngle - self.radsMaxRotate * secDt) % (math.pi *2)
 				        if newAngle > normradAngleToWaypoint then
@@ -204,6 +208,25 @@ function player.new()
 				    self:removeWayPoint()
 				    self.mtrsMovementVector = vector.new(0,0,0) --TODO decelerate
 				    self.currentAction = enums.NextAction.standStill
+									
+				elseif collisionCheck:CheckTwoObjects(self, gameState.gameDisk) then
+					--Check Air or ground
+					--If Air
+						-- Check height
+						-- IF height is valid catch
+					--If Ground
+						-- If Team is correct pickup
+						-- else, stand by
+						-- NO TEAMS YET :)
+					if gameState.gameDisk.z > 0 then
+						--Do Nothing for now, need to do height check and catch logic
+						local flimflam = 1
+					else
+						self.mtrsMovementVector = vector.new(0,0,0)
+						self.currentAction = enums.NextAction.standStill
+						
+					end -- end flight check
+				
 				else
 				    -- continue accelerating
 				    
@@ -214,9 +237,9 @@ function player.new()
                     if (mtrsNewMovementVector:Magnitude() < self.mtrsMaxSpeed) then
                     
                         self.mtrsMovementVector = self.mtrsMovementVector:Add(mtrsAccelerationVector)
+                    end-- maxcheck
                     else
                         self.mtrsMovementVector:SetSelfFromMagAngle(self.mtrsMaxSpeed, self.angle)
-                    end-- maxcheck
 				end--collisionCheckElse
 			end --waypoint check
 		elseif self.currentAction == enums.NextAction.chasingDisc then 

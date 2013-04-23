@@ -10,18 +10,24 @@ debugFlg = false
 
 
 function love.load()
-    wayPointer = waypoint.new(15,15)
     
-	mainplayer = player.new()
-	player2 = player.new()
+	gameState = gamestate.new()
+	gameState.throwVector = nil
+	gameState.drawThrowVector = false
+	gameState.selectedPlayer = player2
+	gamedisk = disk.new(gameState)
+	gamedisk.x =30
+	gamedisk.y = 30
+	gameState.gameDisc = gamedisk
+	mainplayer = player.new(gameState)
+	player2 = player.new(gameState)
 	player2.x = 20
 	player2.y = 20
 	mainplayer.x = 15
 	mainplayer.y = 38
 	--table.insert(mainplayer.waypointlist, wayPointer)
-	gamedisk = disk.new()
+	
 	Field = field.new()
-	gamedisk:caught(player2)
     
 	player2:selected()
 	player2.angle = math.pi/2
@@ -29,10 +35,7 @@ function love.load()
 	--testVector = vector.new(10,10)
 	--testVector.origX = player2.x;
 	--testVector.origY = player2.y;
-	gameState = gamestate.new()
-	gameState.throwVector = nil
-	gameState.drawThrowVector = false
-	gameState.selectedPlayer = player2
+
 end
 
 function love.draw()
@@ -77,7 +80,10 @@ function love.mousepressed(x, y, button)
             gameState.throwVector.origX = player2.x;
             gameState.throwVector.origY = player2.y;
             gameState.throwVector:SetSelfFromAbsol(x,y)
-        end
+        elseif gamedisk.posessingPlayer == nil and gamedisk.pixelInterSection(x,y) and gameState.selectedPlayer ~= nil then
+			table.insert(gameState.selectedPlayer.waypointlist, gamedisk)
+		end
+		
     else
         toSelect = nil
         for key, value in ipairs(playerobjs) do
