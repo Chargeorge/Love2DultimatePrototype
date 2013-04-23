@@ -16,13 +16,13 @@ function disk.new()
 	local self = {}
 	
 	self.staticDiskState = CreateDiskState()
-	self.currentDiskState = self.staticDiskState.inflight
+	self.currentDiskState = self.staticDiskState.ground
 	
 	self.x = 30 -- left point in meters
 	self.y = 30 -- Top point in meters
 	self.z = 1 
 	self.rotation = {x=0, y= 0}
-	self.velocityVector = Vector.new( 10,  10,  0) -- Absolute m/s
+	self.velocityVector = Vector.new( 0,  0,  0) -- Absolute m/s
 	self.radius = .5
 	self.posessingPlayer = {}
 	self.estimatedPosition = nil --= disk.new() Create a disk, launch it, run through a full move

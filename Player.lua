@@ -209,8 +209,9 @@ function player.new(gameState)
 				    self.mtrsMovementVector = vector.new(0,0,0) --TODO decelerate
 				    self.currentAction = enums.NextAction.standStill
 									
-				elseif collisionCheck:CheckTwoObjects(self, gameState.gameDisk) then
-					--Check Air or ground
+				elseif collisionCheck:CheckTwoObjects(self.myBoundingBox, gameState.gameDisc.myBoundingBox) then
+					print "Player disc colliding"
+                    --Check Air or ground
 					--If Air
 						-- Check height
 						-- IF height is valid catch
@@ -218,7 +219,7 @@ function player.new(gameState)
 						-- If Team is correct pickup
 						-- else, stand by
 						-- NO TEAMS YET :)
-					if gameState.gameDisk.z > 0 then
+					if gameState.gameDisc.z > 0 then
 						--Do Nothing for now, need to do height check and catch logic
 						local flimflam = 1
 					else
@@ -237,9 +238,10 @@ function player.new(gameState)
                     if (mtrsNewMovementVector:Magnitude() < self.mtrsMaxSpeed) then
                     
                         self.mtrsMovementVector = self.mtrsMovementVector:Add(mtrsAccelerationVector)
-                    end-- maxcheck
+                    --end maxcheck
                     else
                         self.mtrsMovementVector:SetSelfFromMagAngle(self.mtrsMaxSpeed, self.angle)
+                    end
 				end--collisionCheckElse
 			end --waypoint check
 		elseif self.currentAction == enums.NextAction.chasingDisc then 

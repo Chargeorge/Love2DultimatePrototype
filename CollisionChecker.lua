@@ -5,6 +5,15 @@ local vector = require("vector")
 local boundingBox = require("boundingbox")
 function collisionChecker.new()
     local self = {}
+    
+    function self:boxBoxCollision(boxA, boxB)
+	--	TODO: add interior test
+		return not(boxB:left() > boxA:right()
+			or boxB:right() < boxA:left()
+			or boxB:top() > boxA:bottom()
+			or boxB:bottom() < boxA:top()
+			)
+	end
     function self:CheckTwoObjects(objA, objB)
         --TODO add NIL checks
         --Situations, point collides with a Box, two boxes collide, two points are at the same place
@@ -16,7 +25,6 @@ function collisionChecker.new()
             
 			
 			return self:boxBoxCollision(objA, objB)
-        
         elseif boxCount == 1 then
             
             local boxObj, pointObj 
@@ -47,14 +55,7 @@ function collisionChecker.new()
 			pointObj.y >= boxObj:mtrULy())
 	end
 	
-	function self:boxBoxCollision(boxA, boxB)
-	--	TODO: add interior test
-		return not(boxB.left() > boxA.right()
-			or boxB.right() < boxA.left()
-			or boxB.top() > boxA.bottom()
-			or boxB.bottom() < boxA.top()
-			)
-	end
+
    
    return self
 end

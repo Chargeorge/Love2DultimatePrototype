@@ -2,6 +2,7 @@ local gamestate = {}
 local utils = require("utils")
 function gamestate.new()
 	--Ulti Rules globals
+	self = {}
 	self.posessingTeam = 0
 	self.posessingPlayer = nil
 	self.gameDisc = nil

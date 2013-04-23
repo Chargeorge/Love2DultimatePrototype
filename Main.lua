@@ -14,10 +14,10 @@ function love.load()
 	gameState = gamestate.new()
 	gameState.throwVector = nil
 	gameState.drawThrowVector = false
-	gameState.selectedPlayer = player2
 	gamedisk = disk.new(gameState)
 	gamedisk.x =30
 	gamedisk.y = 30
+	gamedisk.z = 0
 	gameState.gameDisc = gamedisk
 	mainplayer = player.new(gameState)
 	player2 = player.new(gameState)
@@ -25,6 +25,8 @@ function love.load()
 	player2.y = 20
 	mainplayer.x = 15
 	mainplayer.y = 38
+	
+	gameState.selectedPlayer = player2
 	--table.insert(mainplayer.waypointlist, wayPointer)
 	
 	Field = field.new()
@@ -43,7 +45,6 @@ function love.draw()
 	mainplayer:draw()
 
 	player2:draw()
-	wayPointer:draw()
 	gamedisk:draw()
 	if gameState.drawThrowVector and gameState.throwVector ~= nil then
 		
