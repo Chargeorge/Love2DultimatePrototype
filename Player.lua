@@ -200,7 +200,7 @@ function player.new()
 	        --Check angle/accell and choose to move to either a hard move or a slower turn
 			if(NextWaypoint ~= nil) then
 			    
-				if collisionCheck:CheckTwoObjects(self, NextWaypoint) then
+				if collisionCheck:CheckTwoObjects(self.myBoundingBox, NextWaypoint) then
 				    self:removeWayPoint()
 				    self.mtrsMovementVector = vector.new(0,0,0) --TODO decelerate
 				    self.currentAction = enums.NextAction.standStill
@@ -219,6 +219,11 @@ function player.new()
                     end-- maxcheck
 				end--collisionCheckElse
 			end --waypoint check
+		elseif self.currentAction == enums.NextAction.chasingDisc then 
+		     -- Figure disc position
+		     -- Figure out best angle to be at
+		     -- Run to thtat angle
+		
 	    elseif self.currentAction == enums.NextAction.hardTurn then
             --Hard Move until stop, then set direction towards way point
 			self.x = self.x

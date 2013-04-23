@@ -5,7 +5,9 @@ hardTurn = 0,
 turnAndMove = 1,
 jump = 2,
 standStill = 3,
-movingStraight = 4
+movingStraight = 4,
+chasingPlayer = 5,
+chasingDisc = 6
 }
 
 local NextDecision =  {
