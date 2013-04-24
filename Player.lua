@@ -26,7 +26,7 @@ function player.new(gameState)
 	--Stats
 	self.mtrsMaxSpeed = 4
 	self.mtrssMaxAccel = 2
-	self.mtrssMaxDeccel = 8
+	self.mtrssMaxDeccel = -8
 	self.radsMaxRotate = math.pi*2
 	--print (utilHandler:TranslateXMeterToPixel(self.x))
 	self.gameState = gameState
@@ -228,17 +228,7 @@ function player.new(gameState)
 				else
 				    -- continue accelerating
 				    
-                    local mtrsAccelerationThisFrame = self.mtrssMaxAccel * secDt 
-                    local mtrsAccelerationVector = vector.new(0,0,0)
-                    mtrsAccelerationVector:SetSelfFromMagAngle(mtrsAccelerationThisFrame, self.angle)
-                    local mtrsNewMovementVector = self.mtrsMovementVector:Add( mtrsAccelerationVector )
-                    if (mtrsNewMovementVector:Magnitude() < self.mtrsMaxSpeed) then
-                    
-                        self.mtrsMovementVector = self.mtrsMovementVector:Add(mtrsAccelerationVector)
-                    --end maxcheck
-                    else
-                        self.mtrsMovementVector:SetSelfFromMagAngle(self.mtrsMaxSpeed, self.angle)
-                    end
+                    self:modMoveVector(secDt, self.mtrssMaxAccel)
 				end--collisionCheckElse
 			end --waypoint check
 		elseif self.currentAction == enums.NextAction.chasingDisc then 
@@ -249,14 +239,45 @@ function player.new(gameState)
 	    elseif self.currentAction == enums.NextAction.hardTurn then
             --Hard Move until stop, then set direction towards way point
 			self.x = self.x
+        
+        elseif self.currentAction == enums.NextAction.holdingDiscMoving then
+            modMoveVector(secDt, self.mtrssMaxDeccel)
+            
+        end
+        
+	end
+	
+	function self:modMoveVector(secDt, accel)
+	    local mtrsAccelerationThisFrame = accel * secDt 
+        local mtrsAccelerationVector = vector.new(0,0,0)
+        mtrsAccelerationVector:SetSelfFromMagAngle(mtrsAccelerationThisFrame, self.angle)
+        local mtrsNewMovementVector = self.mtrsMovementVector:Add( mtrsAccelerationVector )
+        
+        
+        if (mtrsNewMovementVector:Magnitude() >= self.mtrsMaxSpeed) then
+        
+            self.mtrsMovementVector:SetSelfFromMagAngle(self.mtrsMaxSpeed, self.angle)
+            return enums.MovmentReturnType.maxSpeed
+        elseif mtrsNewMovementVector.x * self.mtrsMovementVector.x < 0 and mtrsNewMovementVector.y * self.mtrsMovementVector.y < 0 then
+           self.mtrsMovementVector.x = 0
+           self.mtrsMovmentVector.y = 0
+           self.mtrsMovementVector.z = 0
+           return enums.MovmentReturnType.stop
+           
+        else
+            self.mtrsMovementVector = mtrsNewMovementVector
+           return enums.MovmentReturnType.accelerating
         end
 	end
+	
 	
 	--Waypoint related
 	function self:removeWayPoint()
 	    
         table.remove(self.waypointlist, 1)
 	end
+	
+	
 	
 	--BOUNDING BOX RELATED FUNCTIONS
 	--REMOVED TO IT'S OWN OBJECT :)
