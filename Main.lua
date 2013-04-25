@@ -5,6 +5,7 @@ local Utils = require("utils")
 local vector = require("vector")
 local gamestate = require("gamestate")
 local waypoint = require("WayPoint")
+local enums = require("enums")
 debugFlg = false
 
 
@@ -73,19 +74,20 @@ end
 
 function love.mousepressed(x, y, button)
 	if button == "r" then
-	
-       if gamedisk.posessingPlayer.playerId == gameState.selectedPlayer.playerId   then
+        if  gameState.gameDisc.currentDiscState == enums.discState.playerhand then
+           if gamedisk.posessingPlayer.playerId == gameState.selectedPlayer.playerId   then
 
-            gameState.drawThrowVector = true
-            gameState.throwVector  = vector.new(0,0)
-            gameState.throwVector.origX = player2.x;
-            gameState.throwVector.origY = player2.y;
-            gameState.throwVector:SetSelfFromAbsol(x,y)
-        elseif gamedisk.posessingPlayer == nil and gamedisk.pixelInterSection(x,y) and gameState.selectedPlayer ~= nil then
-			table.insert(gameState.selectedPlayer.waypointlist, gamedisk)
-		end
-		
-    else
+                gameState.drawThrowVector = true
+                gameState.throwVector  = vector.new(0,0)
+                gameState.throwVector.origX =gamedisk.posessingPlayer.x;
+                gameState.throwVector.origY = gamedisk.posessingPlayer.y;
+                gameState.throwVector:SetSelfFromAbsol(x,y)
+            end
+         --elseif gamedisk.posessingPlayer == nil and gamedisk.pixelInterSection(x,y) and gameState.selectedPlayer ~= nil then
+         --   table.insert(gameState.selectedPlayer.waypointlist, gamedisk)
+         
+         end
+    else -- Button = L
         toSelect = nil
         for key, value in ipairs(playerobjs) do
             if value:pixelInterSection(x,y) then
@@ -108,14 +110,18 @@ end
 
 function love.mousereleased(x,y, button)
     if button == "r"  then
-        if  gamedisk.posessingPlayer.playerId == gameState.selectedPlayer.playerId   then
-            gameState.drawThrowVector = false
-            gamedisk:throw(gameState.throwVector)
-			
-			gameState.posessingPlayer = nil
-        else
+        if(gameState.gameDisc.currentDiscState == enums.discState.playerhand) then
+            if  gameState.gameDisc.posessingPlayer.playerId == gameState.selectedPlayer.playerId   then
+                gameState.drawThrowVector = false	
+                gameState.gameDisc.posessingPlayer:throw()
+                gameState.gameDisc:throw(gameState.throwVector)
+                gameState.gameDisc.posessingPlayer = nil
+            else
+                table.insert(gameState.selectedPlayer.waypointlist, waypoint.new(gameState.Utils:TranslateXPixelToMeter(x), gameState.Utils:TranslateYPixelToMeter(y)))
+            end
+        else --end disc state check
         --TODO make this a method in the player
-
+            
             table.insert(gameState.selectedPlayer.waypointlist, waypoint.new(gameState.Utils:TranslateXPixelToMeter(x), gameState.Utils:TranslateYPixelToMeter(y)))
         end
     end

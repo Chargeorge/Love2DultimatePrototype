@@ -8,6 +8,13 @@ function collisionChecker.new()
     
     function self:boxBoxCollision(boxA, boxB)
 	--	TODO: add interior test
+	    if not (boxB:left() > boxA:right()
+			or boxB:right() < boxA:left()
+			or boxB:top() > boxA:bottom()
+			or boxB:bottom() < boxA:top()
+			) then
+			print "COllision detected"
+		end
 		return not(boxB:left() > boxA:right()
 			or boxB:right() < boxA:left()
 			or boxB:top() > boxA:bottom()

@@ -9,7 +9,7 @@ movingStraight = 4,
 chasingDisc = 5, 
 chasingPlayer = 6,
 holdingDiscMoving = 7,
-holdingDsicStopped = 8
+holdingDiscStopped = 8
 }
 
 Enums.NextDecision =  {
@@ -30,5 +30,9 @@ Enums.MovmentReturnType = {
     accelerating = 3
     
 }
+
+Enums.discState = {ground = 1,
+	playerhand = 2,
+	inflight = 3}
 
 return Enums

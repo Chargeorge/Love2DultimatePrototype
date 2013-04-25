@@ -2,11 +2,8 @@ local disk = {}
 local utilFuncs = require("Utils")
 local Vector = require("vector")
 local boundingBox = require("boundingbox")
-function CreateDiskState()
-	return 	{ground = 1,
-	playerhand = 2,
-	inflight = 3}
-end
+local enums = require("enums")
+
 
 function disk.new(gameState)
 	--[[Loading section ]]
@@ -15,8 +12,7 @@ function disk.new(gameState)
 	
 	local self = {}
 	self.gameState = gameState
-	self.staticDiskState = CreateDiskState()
-	self.currentDiskState = self.staticDiskState.ground
+	self.currentDiscState = enums.discState.ground
 	
 	self.x = 30 -- left point in meters
 	self.y = 30 -- Top point in meters
@@ -33,7 +29,7 @@ function disk.new(gameState)
 
 	--[[Throwing methods]]
 	function self:throw(velVector)
-		self.currentDiskState = self.staticDiskState.inflight
+		self.currentDiscState = enums.discState.inflight
 		self.velocityVector = velVector
 		self.z = 1.5
 		self.posessingPlayer = {}
@@ -42,7 +38,7 @@ function disk.new(gameState)
 	
 	
 	function self:updateposition(dt)
-		if self.z > 0 and self.currentDiskState == self.staticDiskState.inflight then
+		if self.z > 0 and self.currentDiscState == enums.discState.inflight then
 		
 			
 			self.x = self.x+self.velocityVector.x* (dt)
@@ -55,7 +51,7 @@ function disk.new(gameState)
 			--print ("Z val: " .. self.z)
 			
 			if self.z <= 0 then 
-				self.currentDiskState = self.staticDiskState.ground
+				self.currentDiscState = enums.discState.ground
 				self.z = 0
 				self.velocityVector.x = 0
 				self.velocityVector.y = 0
@@ -63,7 +59,7 @@ function disk.new(gameState)
 			self:updateFlightVector(dt)
 		end
 		
-		if self.currentDiskState == self.staticDiskState.playerhand then
+		if self.currentDiscState == enums.discState.playerhand then
 			self.x = self.posessingPlayer.x+math.cos(self.posessingPlayer.angle)*self.posessingPlayer.front-- + self.posessingPlayer.front
 			self.y = self.posessingPlayer.y+math.sin(self.posessingPlayer.angle)*self.posessingPlayer.side--+self.posessingPlayer.side
 			--print (self.x) 
@@ -80,7 +76,7 @@ function disk.new(gameState)
 	    self.estimatedPosition.z = self.z
 	    self.estimatedPosition.color = {r=0,g=255,b=255,alpha=255}
 	    self.estimatedPosition.velocityVector = self.velocityVector:clone()
-	    self.estimatedPosition.currentDiskState = self.staticDiskState.inflight
+	    self.estimatedPosition.currentDiscState = enums.discState.inflight
         while self.estimatedPosition.z > 0 do
 	        self.estimatedPosition:updateposition(dt)
 	    end
@@ -88,7 +84,7 @@ function disk.new(gameState)
     end
 	
 	function self:updateFlightVector(dt)
-		if self.z > 0 and self.currentDiskState == self.staticDiskState.inflight then
+		if self.z > 0 and self.currentDiscState == enums.discState.inflight then
 			
 			self.velocityVector.x = self.velocityVector.x / (1+dt)
 			self.velocityVector.y =self.velocityVector.y / (1+dt)
@@ -98,7 +94,7 @@ function disk.new(gameState)
 	end
 	
 	function self:caught(player)
-		self.currentDiskState = self.staticDiskState.playerhand
+		self.currentDiscState = enums.discState.playerhand
 		self.posessingPlayer = player
 
 	end
@@ -107,7 +103,7 @@ function disk.new(gameState)
 		love.graphics.setColor(self.color.r,self.color.g,self.color.b,self.color.alpha)	
 		love.graphics.circle("fill", UtilFuncs:TranslateXMeterToPixel(self.x), UtilFuncs:TranslateYMeterToPixel(self.y), (UtilFuncs:TD(self.radius) * (1+self.z/10) ))
 		self.myBoundingBox:draw()
-		if self.estimatedPosition ~= nil and self.currentDiskState == self.staticDiskState.inflight then
+		if self.estimatedPosition ~= nil and self.currentDiscState == enums.discState.inflight then
 		    self.estimatedPosition:draw()
 		end
 	end

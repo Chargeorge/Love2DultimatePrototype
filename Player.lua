@@ -221,7 +221,7 @@ function player.new(gameState)
 						local flimflam = 1
 					else
 						self.mtrsMovementVector = vector.new(0,0,0)
-						self.currentAction = enums.NextAction.standStill
+						self.currentAction = enums.NextAction.holdingDiscMoving
 						gameState.gameDisc:caught(self)
 					end -- end flight check
 				
@@ -241,8 +241,13 @@ function player.new(gameState)
 			self.x = self.x
         
         elseif self.currentAction == enums.NextAction.holdingDiscMoving then
-            modMoveVector(secDt, self.mtrssMaxDeccel)
-            
+            self:modMoveVector(secDt, self.mtrssMaxDeccel)
+            if self.mtrsMovementVector.x == 0 and self.mtrsMovementVector.y == 0 then
+                self.currentAction = enums.NextAction.holdingDiscStopped
+            end
+        elseif self.currentAction == enums.NextAction.holdingDiscStopped then
+            self.angle = self:GetAngleToPointer()
+        
         end
         
 	end
@@ -260,7 +265,7 @@ function player.new(gameState)
             return enums.MovmentReturnType.maxSpeed
         elseif mtrsNewMovementVector.x * self.mtrsMovementVector.x < 0 and mtrsNewMovementVector.y * self.mtrsMovementVector.y < 0 then
            self.mtrsMovementVector.x = 0
-           self.mtrsMovmentVector.y = 0
+           self.mtrsMovementVector.y = 0
            self.mtrsMovementVector.z = 0
            return enums.MovmentReturnType.stop
            
@@ -277,6 +282,9 @@ function player.new(gameState)
         table.remove(self.waypointlist, 1)
 	end
 	
+	function self:throw()
+	    self.currentAction = enums.NextAction.standStill
+	end
 	
 	
 	--BOUNDING BOX RELATED FUNCTIONS
