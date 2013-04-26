@@ -208,6 +208,7 @@ function player.new(gameState)
 									
 				elseif collisionCheck:CheckTwoObjects(self.myBoundingBox, gameState.gameDisc.myBoundingBox) then
 					
+					print "Collided"
                     --Check Air or ground
 					--If Air
 						-- Check height
@@ -220,7 +221,6 @@ function player.new(gameState)
 						--Do Nothing for now, need to do height check and catch logic
 						local flimflam = 1
 					else
-						self.mtrsMovementVector = vector.new(0,0,0)
 						self.currentAction = enums.NextAction.holdingDiscMoving
 						gameState.gameDisc:caught(self)
 					end -- end flight check
@@ -257,7 +257,13 @@ function player.new(gameState)
         local mtrsAccelerationVector = vector.new(0,0,0)
         mtrsAccelerationVector:SetSelfFromMagAngle(mtrsAccelerationThisFrame, self.angle)
         local mtrsNewMovementVector = self.mtrsMovementVector:Add( mtrsAccelerationVector )
-        
+		
+        if accel ~= nil and  accel <  0 then 
+		
+			print("mtrsAccelerationVector: " .. mtrsAccelerationVector:debugString())
+			print("mtrsNewMovementVector: " .. mtrsNewMovementVector:debugString())
+			print("mtrsMovementVector " .. self.mtrsMovementVector:debugString())
+		end	
         
         if (mtrsNewMovementVector:Magnitude() >= self.mtrsMaxSpeed) then
         

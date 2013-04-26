@@ -15,7 +15,7 @@ function love.load()
 	gameState = gamestate.new()
 	gameState.throwVector = nil
 	gameState.drawThrowVector = false
-	gamedisk = disk.new(gameState)
+	gamedisk = disk.new(gameState)	
 	gamedisk.x =30
 	gamedisk.y = 30
 	gamedisk.z = 0

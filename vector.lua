@@ -66,6 +66,9 @@ function Vector.new(xUser, yUser, zUser) --IN METERS
 	    return Returnable
 	end
 	
+	function self:debugString()
+		return "x: " .. self.x .. " y: " ..self.y
+	end
 	
 	return self
 end
