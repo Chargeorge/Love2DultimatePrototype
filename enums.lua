@@ -1,15 +1,17 @@
 local Enums = {}
 
 Enums.NextAction =  {
-hardTurn = 0,
+
 turnAndMove = 1,
 jump = 2,
-standStill = 3,
-movingStraight = 4,
-chasingDisc = 5, 
-chasingPlayer = 6,
-holdingDiscMoving = 7,
-holdingDiscStopped = 8
+standStill = 3, -- don't matter
+movingStraight = 4, -- Position set, run at full speed
+chasingDisc = 5,  -- Chasing the disc, make a guess based on where it's going
+chasingPlayer = 6, --A player is the next waypoint, AI based moevement
+holdingDiscMoving = 7, --Caught the disc and taking the allowed steps
+holdingDiscStopped = 8,  --Disc in hand, fully stopped, don't don any further movements or some old guy will call travel
+stopping  = 9, -- Flat stop
+cutStopping = 10, --Cut stopping is unique as the player is expected to cut stop, and immediately go into the next move
 }
 
 Enums.NextDecision =  {

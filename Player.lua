@@ -172,6 +172,13 @@ function player.new(gameState)
                         else
                             self.angle = normradAngleToWaypoint
                         end
+                        
+                        local mtrssAccel = self.mtrssMaxAccel / (2 * ((normradAngleToWaypoint % math.pi) / math.pi))
+                        local additionalVector = vector.new(0,0,0)
+                        
+                        print ("I should be moving")
+                        additionalVector:SetSelfFromMagAngle(mtrssAccel* secDt, normradAngleToWaypoint)
+                        self.mtrsMovementVector = self.mtrsMovementVector:Add(additionalVector)
                         --TODO: add back some acceleration
 				    elseif  normAngle < normradAngleToWaypoint then
 				        local newAngle =(normAngle + self.radsMaxRotate * secDt) % (math.pi *2)
@@ -180,12 +187,24 @@ function player.new(gameState)
                         else
                             self.angle = normradAngleToWaypoint
                         end
+                        --TODO make side speed factor a per player variable
+                        local mtrssAccel = self.mtrssMaxAccel / (4 * ((normradAngleToWaypoint % math.pi) / math.pi))
+                        local additionalVector = vector.new(0,0,0)
+                        
+                        print ("I should be moving")
+                        additionalVector:SetSelfFromMagAngle(mtrssAccel* secDt, normradAngleToWaypoint)
+                        self.mtrsMovementVector = self.mtrsMovementVector:Add(additionalVector)
+                        --print("self.mtrsMovementVector:" .. self.mtrsMovementVector:debugString()) --DEBUGPRINT
+                        --Acceleration is maxAccell/ 4*((angleToDisc%pi)/pi)
                         
                         --TODO: add back some acceleration
 				    else
 				        -- accellmag = accell*secDT, unless Acceleration * secDt > maxSpeed, in which case mag of new vector = maxSpeed
 				        local mtrsAccelerationThisFrame = self.mtrssMaxAccel * secDt 
-                        self.mtrsMovementVector:SetSelfFromMagAngle(mtrsAccelerationThisFrame, self.angle)
+				        local additionalVector = vector.new(0,0,0)
+                        additionalVector:SetSelfFromMagAngle(mtrsAccelerationThisFrame, self.angle)
+                        
+                        self.mtrsMovementVector= self.mtrsMovementVector:Add(additionalVector)
 				        self.currentAction = enums.NextAction.movingStraight				        
 				    
 				    end
@@ -208,7 +227,6 @@ function player.new(gameState)
 									
 				elseif collisionCheck:CheckTwoObjects(self.myBoundingBox, gameState.gameDisc.myBoundingBox) then
 					
-					print "Collided"
                     --Check Air or ground
 					--If Air
 						-- Check height
@@ -225,6 +243,11 @@ function player.new(gameState)
 						gameState.gameDisc:caught(self)
 					end -- end flight check
 				
+				elseif collisionCheck:CheckTwoObjects(self.myBoundingBox, NextWaypoint.myBoundingBox) then
+				    if self.waypointlist[2] == nil then
+				        self.currentAction = enums.NextAction.stopping
+				        self:modMoveVector(secDt, self.mtrssMaxDeccel)
+				    end
 				else
 				    -- continue accelerating
 				    
@@ -236,9 +259,13 @@ function player.new(gameState)
 		     -- Figure out best angle to be at
 		     -- Run to thtat angle
 		
-	    elseif self.currentAction == enums.NextAction.hardTurn then
+	    elseif self.currentAction == enums.NextAction.cutStopping then
             --Hard Move until stop, then set direction towards way point
-			self.x = self.x
+			self:modMoveVector(secDt, self.mtrssMaxDeccel)
+            if self.mtrsMovementVector.x == 0 and self.mtrsMovementVector.y == 0 then
+                self.currentAction = enums.NextAction.standStill
+                self:removeWayPoint()
+            end
         
         elseif self.currentAction == enums.NextAction.holdingDiscMoving then
             self:modMoveVector(secDt, self.mtrssMaxDeccel)
@@ -248,6 +275,14 @@ function player.new(gameState)
         elseif self.currentAction == enums.NextAction.holdingDiscStopped then
             self.angle = self:GetAngleToPointer()
         
+                
+        elseif self.currentAction == enums.NextAction.stopping then
+            --TODO: add check for a new waypoint being added
+            self:modMoveVector(secDt, self.mtrssMaxDeccel)
+            if self.mtrsMovementVector.x == 0 and self.mtrsMovementVector.y == 0 then
+                self.currentAction = enums.NextAction.standStill
+                self:removeWayPoint()
+            end
         end
         
 	end
