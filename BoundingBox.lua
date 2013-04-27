@@ -31,7 +31,7 @@ function BoundingBox.new(x, y, front, side)
 		return self.y
 	end
 	function self:bottom()
-		return y+self.side
+		return self.y+self.side
 	end
 	
 	function self:pointmtrUR()

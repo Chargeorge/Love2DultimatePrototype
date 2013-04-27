@@ -7,19 +7,25 @@ function collisionChecker.new()
     local self = {}
     
     function self:boxBoxCollision(boxA, boxB)
-	--	TODO: add interior test
-	    if not (boxB:left() > boxA:right()
-			or boxB:right() < boxA:left()
-			or boxB:top() > boxA:bottom()
-			or boxB:bottom() < boxA:top()
-			) then
-			print "COllision detected"
-		end
-		return not(boxB:left() > boxA:right()
-			or boxB:right() < boxA:left()
-			or boxB:top() > boxA:bottom()
-			or boxB:bottom() < boxA:top()
-			)
+
+		if(boxA:left() <= boxB:right() and 
+				boxB:left() <= boxA:right() and
+				boxA:top() <= boxB:bottom() and
+				boxB:top() <= boxA:bottom()
+				) then
+					print ("BoxA Left " ..boxA:left() .. " BoxA Right: " .. boxA:right() .. " boxA Top: " .. boxA:top() .. " boxa bottom " .. boxA:bottom())
+					
+					print ("boxB Left " ..boxB:left() .. " boxB Right: " .. boxB:right() .. " boxB Top: " .. boxB:top() .. " boxB bottom " .. boxB:bottom())
+				end
+			
+				
+		
+		return (boxA:left() <= boxB:right() and 
+				boxB:left() <= boxA:right() and
+				boxA:top() <= boxB:bottom() and
+				boxB:top() <= boxA:bottom()
+				)
+
 	end
     function self:CheckTwoObjects(objA, objB)
         --TODO add NIL checks
