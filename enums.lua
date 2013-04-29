@@ -14,6 +14,7 @@ stopping  = 9, -- Flat stop
 cutStopping = 10, --Cut stopping is unique as the player is expected to cut stop, and immediately go into the next move
 }
 
+
 Enums.NextDecision =  {
 moveToWaypoint = 0,
 returnToPlayPosition = 1,
@@ -36,5 +37,10 @@ Enums.MovmentReturnType = {
 Enums.discState = {ground = 1,
 	playerhand = 2,
 	inflight = 3}
+Enums.rotateDirection = {   
+    clockWise = 1,
+    noMove = 0,
+    counterClockWise = -1
+}
 
 return Enums

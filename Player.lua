@@ -31,7 +31,8 @@ function player.new(gameState)
 	--print (utilHandler:TranslateXMeterToPixel(self.x))
 	self.gameState = gameState
 	--Internals
-	
+	self.leftOrRight = enums.rotateDirection.noMove--during a turn move am I moving left or right?
+                        
 	function self:GetPixelX()
 		return utilHandler:TranslateXMeterToPixel(self.x)
 	
@@ -165,33 +166,40 @@ function player.new(gameState)
 				    --first figure out if the angle is -1 or positive, then Multiply by -1
 				    local normradAngleToWaypoint = utilHandler:round((radAngleToWayPoint+ math.pi*2) % (math.pi *2),5) --handle when negative or > 2pi
                     local normAngle = utilHandler:round((self.angle + math.pi*2) % (math.pi *2),5)
-				    if normAngle > normradAngleToWaypoint then
-				        local newAngle = (normAngle - self.radsMaxRotate * secDt) % (math.pi *2)
-				        if newAngle > normradAngleToWaypoint then
-                            self.angle = newAngle
-                        else
-                            self.angle = normradAngleToWaypoint
+                    local angleDif = math.abs(normAngle - normradAngleToWaypoint)
+                    print("Angle Dif Test: " .. angleDif)
+				    if normAngle - normradAngleToWaypoint ~= 0 then
+                        
+                        if(self.leftOrRight == enums.rotateDirection.noMove) then
+                            if(normAngle < normradAngleToWaypoint) then
+                                if(angleDif > math.pi ) then --Counter Clock Wise
+                                    self.leftOrRight  = enums.rotateDirection.counterClockWise
+                                    print "I think I should turn CCW"
+                                else
+                                    self.leftOrRight  = enums.rotateDirection.clockWise
+                                    print "like a clock"
+                                end
+                            else
+                                if(angleDif < math.pi ) then --Counter Clock Wise
+                                    self.leftOrRight  = enums.rotateDirection.counterClockWise
+                                    print "I think I should turn CCW"
+                                else
+                                    self.leftOrRight  = enums.rotateDirection.clockWise
+                                    print "like a clock"
+                                end
+                            end
+                           
                         end
+                        --(secDt, angleTo, rotateDirection)
+                        self:modRotateSelf(secDt, normradAngleToWaypoint, self.leftOrRight)
+                        if(utilHandler:round((self.angle+ math.pi*2) % (math.pi *2),5)  == normradAngleToWaypoint) then 
                         
-                        local mtrssAccel = self.mtrssMaxAccel / (2 * ((normradAngleToWaypoint % math.pi) / math.pi))
-                        local additionalVector = vector.new(0,0,0)
-                        
-                        print ("I should be moving")
-                        additionalVector:SetSelfFromMagAngle(mtrssAccel* secDt, normradAngleToWaypoint)
-                        self.mtrsMovementVector = self.mtrsMovementVector:Add(additionalVector)
-                        --TODO: add back some acceleration
-				    elseif  normAngle < normradAngleToWaypoint then
-				        local newAngle =(normAngle + self.radsMaxRotate * secDt) % (math.pi *2)
-                        if newAngle < normradAngleToWaypoint then
-                            self.angle = newAngle
-                        else
-                            self.angle = normradAngleToWaypoint
+                            self.leftOrRight = enums.rotateDirection.noMove
                         end
                         --TODO make side speed factor a per player variable
                         local mtrssAccel = self.mtrssMaxAccel / (4 * ((normradAngleToWaypoint % math.pi) / math.pi))
                         local additionalVector = vector.new(0,0,0)
                         
-                        print ("I should be moving")
                         additionalVector:SetSelfFromMagAngle(mtrssAccel* secDt, normradAngleToWaypoint)
                         self.mtrsMovementVector = self.mtrsMovementVector:Add(additionalVector)
                         --print("self.mtrsMovementVector:" .. self.mtrsMovementVector:debugString()) --DEBUGPRINT
@@ -206,7 +214,7 @@ function player.new(gameState)
                         
                         self.mtrsMovementVector= self.mtrsMovementVector:Add(additionalVector)
 				        self.currentAction = enums.NextAction.movingStraight				        
-				    
+				        self.leftOrRight = enums.rotateDirection.noMove
 				    end
 				    
 				    -- if angle = radAngleToWaypoint ( do nothing!)
@@ -295,9 +303,9 @@ function player.new(gameState)
 		
         if accel ~= nil and  accel <  0 then 
 		
-			print("mtrsAccelerationVector: " .. mtrsAccelerationVector:debugString())
-			print("mtrsNewMovementVector: " .. mtrsNewMovementVector:debugString())
-			print("mtrsMovementVector " .. self.mtrsMovementVector:debugString())
+			--print("mtrsAccelerationVector: " .. mtrsAccelerationVector:debugString()) --debugPrint
+			--print("mtrsNewMovementVector: " .. mtrsNewMovementVector:debugString()) --debugPrint
+			--print("mtrsMovementVector " .. self.mtrsMovementVector:debugString()) --debugPrint
 		end	
         
         if (mtrsNewMovementVector:Magnitude() >= self.mtrsMaxSpeed) then
@@ -316,6 +324,20 @@ function player.new(gameState)
         end
 	end
 	
+	function self:modRotateSelf(secDt, angleTo, rotateDirection) -- Rotate Direction always 1 or -1
+	    local currentDif = self.angle- angleTo
+	    local newAngle = ( self.angle + ((rotateDirection)* (self.radsMaxRotate * secDt))) % (math.pi *2)
+	    local newDif = newAngle-angleTo
+        
+        if(newDif * currentDif  >= 0)  then-- since one diff is now negative and the other is now positive, we've passed it
+            
+            self.angle = newAngle
+        else
+            self.angle = angleTo
+        end
+        
+	    
+	end
 	
 	--Waypoint related
 	function self:removeWayPoint()
