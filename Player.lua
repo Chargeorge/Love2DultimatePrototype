@@ -167,25 +167,19 @@ function player.new(gameState)
 				    local normradAngleToWaypoint = utilHandler:round((radAngleToWayPoint+ math.pi*2) % (math.pi *2),5) --handle when negative or > 2pi
                     local normAngle = utilHandler:round((self.angle + math.pi*2) % (math.pi *2),5)
                     local angleDif = math.abs(normAngle - normradAngleToWaypoint)
-                    print("Angle Dif Test: " .. angleDif)
-				    if normAngle - normradAngleToWaypoint ~= 0 then
-                        
+                    if normAngle - normradAngleToWaypoint ~= 0 then
                         if(self.leftOrRight == enums.rotateDirection.noMove) then
                             if(normAngle < normradAngleToWaypoint) then
                                 if(angleDif > math.pi ) then --Counter Clock Wise
                                     self.leftOrRight  = enums.rotateDirection.counterClockWise
-                                    print "I think I should turn CCW"
                                 else
                                     self.leftOrRight  = enums.rotateDirection.clockWise
-                                    print "like a clock"
                                 end
                             else
                                 if(angleDif < math.pi ) then --Counter Clock Wise
                                     self.leftOrRight  = enums.rotateDirection.counterClockWise
-                                    print "I think I should turn CCW"
                                 else
                                     self.leftOrRight  = enums.rotateDirection.clockWise
-                                    print "like a clock"
                                 end
                             end
                            
@@ -255,6 +249,9 @@ function player.new(gameState)
 				    if self.waypointlist[2] == nil then
 				        self.currentAction = enums.NextAction.stopping
 				        self:modMoveVector(secDt, self.mtrssMaxDeccel)
+                    else
+                        self:modMoveVector(secDt, self.mtrssMaxDeccel)
+				        self.currentAction = enums.NextAction.cutStopping
 				    end
 				else
 				    -- continue accelerating
