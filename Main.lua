@@ -26,7 +26,7 @@ function love.load()
 	player2.y = 20
 	mainplayer.x = 15
 	mainplayer.y = 38
-	
+
 	gameState.selectedPlayer = player2
 	--table.insert(mainplayer.waypointlist, wayPointer)
 	
@@ -44,7 +44,6 @@ end
 function love.draw()
 	Field:draw()
 	mainplayer:draw()
-
 	player2:draw()
 	gamedisk:draw()
 	if gameState.drawThrowVector and gameState.throwVector ~= nil then
@@ -56,9 +55,7 @@ end
 function love.update(dt)
 	--print(mainplayer.angle)
 	--mainplayer.angle = 0
-    
-    
-    
+
 	if gameState.drawThrowVector and gameState.throwVector ~= nil then
 		gameState.throwVector:SetSelfFromAbsol(love.mouse.getX(),love.mouse.getY())
 	end

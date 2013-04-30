@@ -169,20 +169,8 @@ function player.new(gameState)
                     local angleDif = math.abs(normAngle - normradAngleToWaypoint)
                     if normAngle - normradAngleToWaypoint ~= 0 then
                         if(self.leftOrRight == enums.rotateDirection.noMove) then
-                            if(normAngle < normradAngleToWaypoint) then
-                                if(angleDif > math.pi ) then --Counter Clock Wise
-                                    self.leftOrRight  = enums.rotateDirection.counterClockWise
-                                else
-                                    self.leftOrRight  = enums.rotateDirection.clockWise
-                                end
-                            else
-                                if(angleDif < math.pi ) then --Counter Clock Wise
-                                    self.leftOrRight  = enums.rotateDirection.counterClockWise
-                                else
-                                    self.leftOrRight  = enums.rotateDirection.clockWise
-                                end
-                            end
-                           
+                            --COME BACK AND ADD FUNCTION TO DO THIS
+                            self.leftOrRight = self:checkLeftRight(normAngle, normradAngleToWaypoint)
                         end
                         --(secDt, angleTo, rotateDirection)
                         self:modRotateSelf(secDt, normradAngleToWaypoint, self.leftOrRight)
@@ -191,7 +179,7 @@ function player.new(gameState)
                             self.leftOrRight = enums.rotateDirection.noMove
                         end
                         --TODO make side speed factor a per player variable
-                        local mtrssAccel = self.mtrssMaxAccel / (4 * ((normradAngleToWaypoint % math.pi) / math.pi))
+                        local mtrssAccel = self.mtrssMaxAccel  * ((((normradAngleToWaypoint-angleDif) % math.pi) / math.pi))
                         local additionalVector = vector.new(0,0,0)
                         
                         additionalVector:SetSelfFromMagAngle(mtrssAccel* secDt, normradAngleToWaypoint)
@@ -322,18 +310,26 @@ function player.new(gameState)
 	end
 	
 	function self:modRotateSelf(secDt, angleTo, rotateDirection) -- Rotate Direction always 1 or -1
-	    local currentDif = self.angle- angleTo
+	    angleTo = self:normalizeAngle(angleTo)
+        print("angleTO: " .. angleTo)
+        local currentDif = self.angle- angleTo
+        print("currentDif" .. currentDif)
 	    local newAngle = ( self.angle + ((rotateDirection)* (self.radsMaxRotate * secDt))) % (math.pi *2)
+	    print("newAngle" .. newAngle)
+        newAngle = self:normalizeAngle(newAngle)
 	    local newDif = newAngle-angleTo
+        print("newDif" .. newDif)
         
-        if(newDif * currentDif  >= 0)  then-- since one diff is now negative and the other is now positive, we've passed it
-            
-            self.angle = newAngle
+        if (newDif== 0) then
+            self.angle = newAngle 
         else
-            self.angle = angleTo
+            local newRotation = self:checkLeftRight(newAngle, angleTo)
+            if (newRotation ~= rotateDirection) then 
+                self.angle = angleTo
+            else
+                self.angle = newAngle
+            end
         end
-        
-	    
 	end
 	
 	--Waypoint related
@@ -346,7 +342,36 @@ function player.new(gameState)
 	    self.currentAction = enums.NextAction.standStill
 	end
 	
+	function self:normalizeAngle(angleIn)
+	    local returnable = angleIn
+	    while returnable < 0 do
+	        returnable = returnable + (math.pi*2)
+	    end
+	    return returnable % (math.pi*2)
+	end
 	
+	function self:checkLeftRight(normAngle, normradAngleToWaypoint)
+        local leftOrRight
+        local angleDif = math.abs(normAngle - normradAngleToWaypoint)
+        if(normAngle < normradAngleToWaypoint) then
+            if(angleDif > math.pi ) then --Counter Clock Wise
+                leftOrRight  = enums.rotateDirection.counterClockWise
+                print("left")
+            else
+                leftOrRight  = enums.rotateDirection.clockWise
+                print("right")
+            end
+        else
+            if(angleDif < math.pi ) then --Counter Clock Wise
+                leftOrRight  = enums.rotateDirection.counterClockWise
+                print("left")
+            else
+                leftOrRight  = enums.rotateDirection.clockWise
+                print("right")
+            end
+        end
+        return leftOrRight
+	end
 	--BOUNDING BOX RELATED FUNCTIONS
 	--REMOVED TO IT'S OWN OBJECT :)
 	return self
