@@ -28,6 +28,10 @@ function player.new(gameState)
 	self.mtrssMaxAccel = 2
 	self.mtrssMaxDeccel = -8
 	self.radsMaxRotate = math.pi*2
+	self.radCutThreshold = math.pi/2 --Point at which this dude will cut vs turn
+	
+    self.radsRunningTurnRate = self.radsMaxRotate--Rad/Sec running turn rate
+    self.coefRunningTurnRate = 4
 	--print (utilHandler:TranslateXMeterToPixel(self.x))
 	self.gameState = gameState
 	--Internals
@@ -162,9 +166,10 @@ function player.new(gameState)
 					-- TODO: add discy logic
 					self:removeWayPoint()
 				else
-				    local radAngleToWayPoint = self:GetAngleToCoordinates(NextWaypoint.x, NextWaypoint.y) 
+				    --local radAngleToWayPoint = self:GetAngleToCoordinates(NextWaypoint.x, NextWaypoint.y) 
 				    --first figure out if the angle is -1 or positive, then Multiply by -1
-				    local normradAngleToWaypoint = utilHandler:round((radAngleToWayPoint+ math.pi*2) % (math.pi *2),5) --handle when negative or > 2pi
+				    --local normradAngleToWaypoint = utilHandler:round((radAngleToWayPoint+ math.pi*2) % (math.pi *2),5) --handle when negative or > 2pi
+                    local normradAngleToWaypoint = self:normradAngleToWaypoint(NextWaypoint)
                     local normAngle = utilHandler:round((self.angle + math.pi*2) % (math.pi *2),5)
                     local angleDif = math.abs(normAngle - normradAngleToWaypoint)
                     if normAngle - normradAngleToWaypoint ~= 0 then
@@ -206,7 +211,7 @@ function player.new(gameState)
 				end
 				
 			end
-	    elseif self.currentAction == enums.NextAction.movingStraight or self.currentAction == enums.NextAction.turnAndMove then
+	    elseif self.currentAction == enums.NextAction.movingStraight  then
 	        --Check angle/accell and choose to move to either a hard move or a slower turn
 			if(NextWaypoint ~= nil) then
 			    
@@ -237,9 +242,15 @@ function player.new(gameState)
 				    if self.waypointlist[2] == nil then
 				        self.currentAction = enums.NextAction.stopping
 				        self:modMoveVector(secDt, self.mtrssMaxDeccel)
-                    else
-                        self:modMoveVector(secDt, self.mtrssMaxDeccel)
-				        self.currentAction = enums.NextAction.cutStopping
+                    else 
+                        local normradAngleToWaypoint = self:normradAngleToWaypoint(NextWaypoint)
+                        if (math.abs(self.angle-normradAngleToWaypoint ) > self.radCutThreshold) then
+                            self:modMoveVector(secDt, self.mtrssMaxDeccel)
+                            self.currentAction = enums.NextAction.cutStopping
+				        else
+                            self.currentAction = enums.NextAction.turnAndMove
+                            self:removeWayPoint()				            
+				        end
 				    end
 				else
 				    -- continue accelerating
@@ -247,6 +258,13 @@ function player.new(gameState)
                     self:modMoveVector(secDt, self.mtrssMaxAccel)
 				end--collisionCheckElse
 			end --waypoint check
+			
+	    elseif  self.currentAction == enums.NextAction.turnAndMove then
+	        -- Get if I need to turn left or right
+	        -- Calculate amount that the vector needs to change
+	        -- rotate player and vector, continue accell as per normal
+	        -- if angle == new angle change to move straight
+	    
 		elseif self.currentAction == enums.NextAction.chasingDisc then 
 		     -- Figure disc position
 		     -- Figure out best angle to be at
@@ -371,6 +389,13 @@ function player.new(gameState)
             end
         end
         return leftOrRight
+	end
+	
+	function self:normradAngleToWaypoint(waypoint)
+	    local radAngleToWayPoint = self:GetAngleToCoordinates(waypoint.x, waypoint.y) 
+				    --first figure out if the angle is -1 or positive, then Multiply by -1
+		local normradAngleToWaypoint = utilHandler:round((radAngleToWayPoint+ math.pi*2) % (math.pi *2),5) --handle when negative or > 2pi
+        return normradAngleToWaypoint 
 	end
 	--BOUNDING BOX RELATED FUNCTIONS
 	--REMOVED TO IT'S OWN OBJECT :)
