@@ -31,7 +31,7 @@ function player.new(gameState)
 	self.radCutThreshold = math.pi/2 --Point at which this dude will cut vs turn
 	
     self.radsRunningTurnRate = self.radsMaxRotate--Rad/Sec running turn rate
-    self.coefRunningTurnRate = 4
+    self.coefRunningTurnRate = .25  --Amount max speed changes angle
 	--print (utilHandler:TranslateXMeterToPixel(self.x))
 	self.gameState = gameState
 	--Internals
@@ -157,8 +157,10 @@ function player.new(gameState)
 	    self.myBoundingBox:updateXY(self.x,self.y)
 	    
 	    local NextWaypoint = self.waypointlist[1]
-		
-	    if self.currentAction == enums.NextAction.standStill then
+		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		--STAND STILL
+		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        if self.currentAction == enums.NextAction.standStill then
 	        --Accelerate in a direction
 			if(NextWaypoint ~= nil) then
 			    
@@ -179,7 +181,7 @@ function player.new(gameState)
                         end
                         --(secDt, angleTo, rotateDirection)
                         self:modRotateSelf(secDt, normradAngleToWaypoint, self.leftOrRight)
-                        if(utilHandler:round((self.angle+ math.pi*2) % (math.pi *2),5)  == normradAngleToWaypoint) then 
+                        if(utilHandler:round((self.angle+ math.pi*2) % (math.pi *2),5)  == normradAngleToWaypoint) then  --Operation normalizes the vector
                         
                             self.leftOrRight = enums.rotateDirection.noMove
                         end
@@ -211,7 +213,10 @@ function player.new(gameState)
 				end
 				
 			end
-	    elseif self.currentAction == enums.NextAction.movingStraight  then
+		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		-- MOVEING TURNANDMOVE MOVINGSTRAIGHT
+		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	    elseif self.currentAction == enums.NextAction.movingStraight or self.currentAction == enums.NextAction.turnAndMove  then
 	        --Check angle/accell and choose to move to either a hard move or a slower turn
 			if(NextWaypoint ~= nil) then
 			    
@@ -254,22 +259,33 @@ function player.new(gameState)
 				    end
 				else
 				    -- continue accelerating
+				    if self.currentAction == enums.NextAction.movingStraight then
+                        self:modMoveVector(secDt, self.mtrssMaxAccel)
+				    else
+				        self:modMoveVector(secDt, self.mtrssMaxAccel)
+				        local normradAngleToWaypoint = self:normradAngleToWaypoint(NextWaypoint)
+                        local normAngle = utilHandler:round((self.angle + math.pi*2) % (math.pi *2),5)
+                        local angleDif = math.abs(normAngle - normradAngleToWaypoint)
+                        local frameLeftRight = self:checkLeftRight(normAngle, normradAngleToWaypoint)
+                        self:modRotateSelfMovementVector(secDt,normradAngleToWaypoint,frameLeftRight)
+				    end
 				    
-                    self:modMoveVector(secDt, self.mtrssMaxAccel)
-				end--collisionCheckElse
+                        
+                end--collisionCheckElse
 			end --waypoint check
 			
-	    elseif  self.currentAction == enums.NextAction.turnAndMove then
-	        -- Get if I need to turn left or right
-	        -- Calculate amount that the vector needs to change
-	        -- rotate player and vector, continue accell as per normal
-	        -- if angle == new angle change to move straight
-	    
+	    --XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		-- DISC AS WAYPOINT
+		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	        -- Need to do collision checks in this frame
 		elseif self.currentAction == enums.NextAction.chasingDisc then 
 		     -- Figure disc position
 		     -- Figure out best angle to be at
 		     -- Run to thtat angle
 		
+		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		-- CUTSTOPPING HARDSTOPPING
+		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 	    elseif self.currentAction == enums.NextAction.cutStopping then
             --Hard Move until stop, then set direction towards way point
 			self:modMoveVector(secDt, self.mtrssMaxDeccel)
@@ -278,6 +294,9 @@ function player.new(gameState)
                 self:removeWayPoint()
             end
         
+        --XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		-- DISCSTOP holdingDiscMoving
+		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         elseif self.currentAction == enums.NextAction.holdingDiscMoving then
             self:modMoveVector(secDt, self.mtrssMaxDeccel)
             if self.mtrsMovementVector.x == 0 and self.mtrsMovementVector.y == 0 then
@@ -286,7 +305,9 @@ function player.new(gameState)
         elseif self.currentAction == enums.NextAction.holdingDiscStopped then
             self.angle = self:GetAngleToPointer()
         
-                
+        --XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		-- STOPPING
+		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         elseif self.currentAction == enums.NextAction.stopping then
             --TODO: add check for a new waypoint being added
             self:modMoveVector(secDt, self.mtrssMaxDeccel)
@@ -327,16 +348,20 @@ function player.new(gameState)
         end
 	end
 	
-	function self:modRotateSelf(secDt, angleTo, rotateDirection) -- Rotate Direction always 1 or -1
+	function self:modRotateSelfMovementVector(secDt, angleTo, rotateDirection) -- Rotate Direction always 1 or -1
 	    angleTo = self:normalizeAngle(angleTo)
-        print("angleTO: " .. angleTo)
+        -- print("angleTO: " .. angleTo) --DEBUG
         local currentDif = self.angle- angleTo
-        print("currentDif" .. currentDif)
-	    local newAngle = ( self.angle + ((rotateDirection)* (self.radsMaxRotate * secDt))) % (math.pi *2)
-	    print("newAngle" .. newAngle)
+        -- print("currentDif" .. currentDif)--DEBUG
+        print("curent Angle change" .. (self.radsRunningTurnRate * secDt * (self.coefRunningTurnRate * (self.mtrsMaxSpeed/self.mtrsMovementVector:Magnitude() ))))--DEBUG
+	    local currentMaxSpeedRatio = self.mtrsMaxSpeed/self.mtrsMovementVector:Magnitude() 
+	    local convertedSpeedRatio = currentMaxSpeedRatio * self.coefRunningTurnRate
+	    local modifiedRate = convertedSpeedRatio * self.radsRunningTurnRate
+	    local maxTurnThisFrame = convertedSpeedRatio * secDt
+        local newAngle = ( self.angle + (rotateDirection* maxTurnThisFrame))
         newAngle = self:normalizeAngle(newAngle)
 	    local newDif = newAngle-angleTo
-        print("newDif" .. newDif)
+        -- print("newDif" .. newDif)--DEBUG
         
         if (newDif== 0) then
             self.angle = newAngle 
@@ -344,6 +369,34 @@ function player.new(gameState)
             local newRotation = self:checkLeftRight(newAngle, angleTo)
             if (newRotation ~= rotateDirection) then 
                 self.angle = angleTo
+                newAngle = angleTo
+            else
+                self.angle = newAngle
+                
+            end
+        end
+        local newDif = newAngle -self.angle
+        self.mtrsMovementVector:rotate(newDif)
+	end
+	
+	function self:modRotateSelf(secDt, angleTo, rotateDirection) -- Rotate Direction always 1 or -1
+	    angleTo = self:normalizeAngle(angleTo)
+        -- print("angleTO: " .. angleTo) --DEBUG
+        local currentDif = self.angle- angleTo
+        -- print("currentDif" .. currentDif)--DEBUG
+	    local newAngle = ( self.angle + ((rotateDirection)* (self.radsMaxRotate * secDt))) % (math.pi *2)
+	    -- print("newAngle" .. newAngle)--DEBUG
+        newAngle = self:normalizeAngle(newAngle)
+	    local newDif = newAngle-angleTo
+        -- print("newDif" .. newDif)--DEBUG
+        
+        if (newDif== 0) then
+            self.angle = newAngle 
+        else
+            local newRotation = self:checkLeftRight(newAngle, angleTo)
+            if (newRotation ~= rotateDirection) then 
+                self.angle = angleTo
+                
             else
                 self.angle = newAngle
             end
@@ -374,18 +427,18 @@ function player.new(gameState)
         if(normAngle < normradAngleToWaypoint) then
             if(angleDif > math.pi ) then --Counter Clock Wise
                 leftOrRight  = enums.rotateDirection.counterClockWise
-                print("left")
+                
             else
                 leftOrRight  = enums.rotateDirection.clockWise
-                print("right")
+                
             end
         else
             if(angleDif < math.pi ) then --Counter Clock Wise
                 leftOrRight  = enums.rotateDirection.counterClockWise
-                print("left")
+                
             else
                 leftOrRight  = enums.rotateDirection.clockWise
-                print("right")
+                
             end
         end
         return leftOrRight

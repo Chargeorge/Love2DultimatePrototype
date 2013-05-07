@@ -6,7 +6,8 @@ local vector = require("vector")
 local gamestate = require("gamestate")
 local waypoint = require("WayPoint")
 local enums = require("enums")
-debugFlg = false
+debugFlg = true
+
 
 
 
@@ -56,12 +57,23 @@ function love.update(dt)
 	--print(mainplayer.angle)
 	--mainplayer.angle = 0
 
-	if gameState.drawThrowVector and gameState.throwVector ~= nil then
-		gameState.throwVector:SetSelfFromAbsol(love.mouse.getX(),love.mouse.getY())
+    if not debugFlg then
+        if gameState.drawThrowVector and gameState.throwVector ~= nil then
+            gameState.throwVector:SetSelfFromAbsol(love.mouse.getX(),love.mouse.getY())
+        end
+        gamedisk:updateposition(dt)
+        mainplayer:move(dt)
+        player2:move(dt)
+	else
+	    if gameState.drawThrowVector and gameState.throwVector ~= nil then
+            gameState.throwVector:SetSelfFromAbsol(love.mouse.getX(),love.mouse.getY())
+        end
+        gamedisk:updateposition(.017)
+        mainplayer:move(.017)
+        player2:move(.017)
+	
 	end
-	gamedisk:updateposition(dt)
-	mainplayer:move(dt)
-	player2:move(dt)
+	
 end
 
 function GetSelectedPlayer()
