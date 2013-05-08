@@ -117,6 +117,7 @@ function love.mousepressed(x, y, button)
     
 end
 
+
 function love.mousereleased(x,y, button)
     if button == "r"  then
         if(gameState.gameDisc.currentDiscState == enums.discState.playerhand) then
@@ -136,5 +137,16 @@ function love.mousereleased(x,y, button)
     end
 end
 
+function love.keypressed( key, unicode )
+   if key == "d" then
+      gameState.selectedPlayer.currentAction = enums.NextAction.chasingDisc
+   end
+end
+
+function love.keyreleased( key, unicode )
+   if key == "return" then
+      text = "RETURN has been released!"
+   end
+end
 
 

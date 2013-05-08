@@ -4,6 +4,7 @@ local enums = require("enums")
 local vector = require("vector")
 local collisionChecker = require("collisionChecker")
 local boundingBox = require("boundingbox")
+local waypoint = require("WayPoint")
 
 function player.new(gameState)
 	local self = {}
@@ -28,10 +29,10 @@ function player.new(gameState)
 	self.mtrssMaxAccel = 2
 	self.mtrssMaxDeccel = -8
 	self.radsMaxRotate = math.pi*2
-	self.radCutThreshold = math.pi/2 --Point at which this dude will cut vs turn
+	self.radCutThreshold = math.pi/3 --Point at which this dude will cut vs turn
 	
     self.radsRunningTurnRate = self.radsMaxRotate--Rad/Sec running turn rate
-    self.coefRunningTurnRate = .25  --Amount max speed changes angle
+    self.coefRunningTurnRate = .5  --Amount max speed changes angle
 	--print (utilHandler:TranslateXMeterToPixel(self.x))
 	self.gameState = gameState
 	--Internals
@@ -248,7 +249,7 @@ function player.new(gameState)
 				        self.currentAction = enums.NextAction.stopping
 				        self:modMoveVector(secDt, self.mtrssMaxDeccel)
                     else 
-                        local normradAngleToWaypoint = self:normradAngleToWaypoint(NextWaypoint)
+                        local normradAngleToWaypoint = self:normradAngleToWaypoint(self.waypointlist[2])
                         if (math.abs(self.angle-normradAngleToWaypoint ) > self.radCutThreshold) then
                             self:modMoveVector(secDt, self.mtrssMaxDeccel)
                             self.currentAction = enums.NextAction.cutStopping
@@ -279,10 +280,24 @@ function player.new(gameState)
 		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 	        -- Need to do collision checks in this frame
 		elseif self.currentAction == enums.NextAction.chasingDisc then 
-		     -- Figure disc position
-		     -- Figure out best angle to be at
-		     -- Run to thtat angle
-		
+		    -- Case #1, disc is in the air, set a waypoint at it's estimated position
+            -- Case #2 Disc is on the ground, run to the disc 
+
+            if(gameState.gameDisc.currentDiscState == enums.discState.ground) then 
+                table.insert(self.waypointlist, 1, waypoint.new(gameState.gameDisc.x, gameState.gameDisc.y))
+            elseif(gameState.gameDisc.currentDiscState == enums.discState.inflight) then
+                table.insert(self.waypointlist, 1, waypoint.new(gameState.gameDisc.estimatedPosition.x, gameState.gameDisc.estimatedPosition.y))
+            end
+		 
+            local normradAngleToWaypoint = self:normradAngleToWaypoint(self.waypointlist[1])
+            if (math.abs(self.angle-normradAngleToWaypoint ) > self.radCutThreshold) then
+                self:modMoveVector(secDt, self.mtrssMaxDeccel)
+                self.currentAction = enums.NextAction.cutStopping
+            else
+                self.currentAction = enums.NextAction.turnAndMove
+                				            
+            end
+        		    
 		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 		-- CUTSTOPPING HARDSTOPPING
 		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -353,8 +368,7 @@ function player.new(gameState)
         -- print("angleTO: " .. angleTo) --DEBUG
         local currentDif = self.angle- angleTo
         -- print("currentDif" .. currentDif)--DEBUG
-        print("curent Angle change" .. (self.radsRunningTurnRate * secDt * (self.coefRunningTurnRate * (self.mtrsMaxSpeed/self.mtrsMovementVector:Magnitude() ))))--DEBUG
-	    local currentMaxSpeedRatio = self.mtrsMaxSpeed/self.mtrsMovementVector:Magnitude() 
+        local currentMaxSpeedRatio = self.mtrsMaxSpeed/self.mtrsMovementVector:Magnitude() 
 	    local convertedSpeedRatio = currentMaxSpeedRatio * self.coefRunningTurnRate
 	    local modifiedRate = convertedSpeedRatio * self.radsRunningTurnRate
 	    local maxTurnThisFrame = convertedSpeedRatio * secDt

@@ -17,6 +17,7 @@ function disk.new(gameState)
 	self.x = 30 -- left point in meters
 	self.y = 30 -- Top point in meters
 	self.z = 1 
+	self.groundZ = 0 --Can be modified to create special discs that tell you when they reach a certain height
 	self.rotation = {x=0, y= 0}
 	self.velocityVector = Vector.new( 0,  0,  0) -- Absolute m/s
 	self.radius = .5
@@ -33,7 +34,7 @@ function disk.new(gameState)
 		self.velocityVector = velVector
 		self.z = 1.5
 		self.posessingPlayer = {}
-		self:EstimateFinalPosition(.017) --TODO: remove hacked in value
+		self:EstimateFinalPosition(.017,0) --TODO: remove hacked in value
 	end
 	
 	
@@ -50,9 +51,9 @@ function disk.new(gameState)
 			
 			--print ("Z val: " .. self.z)
 			
-			if self.z <= 0 then 
+			if self.z <= self.groundZ then 
 				self.currentDiscState = enums.discState.ground
-				self.z = 0
+				self.z = self.groundZ
 				self.velocityVector.x = 0
 				self.velocityVector.y = 0
 			end
@@ -69,19 +70,26 @@ function disk.new(gameState)
 		self.myBoundingBox:updateXY(self.x-self.radius, self.y-self.radius)
 	end
 	
-	function self:EstimateFinalPosition(dt) 
-	    self.estimatedPosition = disk.new()
-	    self.estimatedPosition.x = self.x
-	    self.estimatedPosition.y = self.y
-	    self.estimatedPosition.z = self.z
-	    self.estimatedPosition.color = {r=0,g=255,b=255,alpha=255}
-	    self.estimatedPosition.velocityVector = self.velocityVector:clone()
-	    self.estimatedPosition.currentDiscState = enums.discState.inflight
-        while self.estimatedPosition.z > 0 do
-	        self.estimatedPosition:updateposition(dt)
-	    end
+	function self:EstimateFinalPosition(dt, newGroundZ) 
+	    self.estimatedPosition  = self:spawnEstimatedPosition(dt, newGroundZ) 
 	    
     end
+	
+	function self:spawnEstimatedPosition(dt, newGroundZ)
+	    local estimatedPosition
+        estimatedPosition = disk.new()
+	    estimatedPosition.x = self.x
+	    estimatedPosition.y = self.y
+	    estimatedPosition.z = self.z
+	    estimatedPosition.groundZ = newGroundZ
+	    estimatedPosition.color = {r=0,g=255,b=255,alpha=255}
+	    estimatedPosition.velocityVector = self.velocityVector:clone()
+	    estimatedPosition.currentDiscState = enums.discState.inflight
+        while estimatedPosition.z > newGroundZ do
+	        estimatedPosition:updateposition(dt)
+	    end
+	    return estimatedPosition
+	end
 	
 	function self:updateFlightVector(dt)
 		if self.z > 0 and self.currentDiscState == enums.discState.inflight then

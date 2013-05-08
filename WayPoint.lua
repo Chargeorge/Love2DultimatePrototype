@@ -7,7 +7,7 @@ function WayPoint.new(x,y)
     local UtilHandler = utils.new()
     self.x = x
     self.y = y
-    self.decelRadius = 3  --TODO: Calculate per player
+    self.decelRadius = 1  --TODO: Calculate per player
     self.myBoundingBox = boundingBox.new(self.x-self.decelRadius/2, self.y-self.decelRadius/2, self.decelRadius, self.decelRadius)
     
     
