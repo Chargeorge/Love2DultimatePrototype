@@ -51,6 +51,15 @@ function love.draw()
 		
 		gameState.throwVector:draw();
 	end
+	
+	if(debugFlg) then
+		local mouseX, mouseY
+		mouseX = gameState.Utils:TranslateXPixelToMeter(love.mouse.getX())
+		mouseY = gameState.Utils:TranslateYPixelToMeter(love.mouse.getY())
+		love.graphics.setColor(255,255,255,255)
+		love.graphics.print("MouseX: ".. mouseX, love.mouse.getX(),love.mouse.getY() )
+		love.graphics.print("MouseY: ".. mouseY, love.mouse.getX(),love.mouse.getY()+20)
+	end
 end
 
 function love.update(dt)
@@ -71,7 +80,8 @@ function love.update(dt)
         gamedisk:updateposition(.017)
         mainplayer:move(.017)
         player2:move(.017)
-	
+		
+		
 	end
 	
 end
@@ -141,12 +151,22 @@ function love.keypressed( key, unicode )
    if key == "d" then
       gameState.selectedPlayer.currentAction = enums.NextAction.chasingDisc
    end
-end
-
-function love.keyreleased( key, unicode )
-   if key == "return" then
-      text = "RETURN has been released!"
+   if key == "1" then
+		if gameState.selectedPlayer ~= nil then
+			gameState.selectedPlayer.isselected = false 
+        end 
+        gameState.selectedPlayer = mainplayer
+        mainplayer.isselected = true
+   end
+   if key == "2" then
+		if gameState.selectedPlayer ~= nil then
+			gameState.selectedPlayer.isselected = false 
+        end 
+		gameState.selectedPlayer = player2
+		player2.isselected = true
+		print "Player2 selected"
    end
 end
+
 
 
