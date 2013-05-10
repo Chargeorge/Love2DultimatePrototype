@@ -280,12 +280,11 @@ function player.new(gameState)
 		    -- Case #1, disc is in the air, set a waypoint at it's estimated position
             -- Case #2 Disc is on the ground, run to the disc 
 
-            if(gameState.gameDisc.currentDiscState == enums.discState.ground) then 
-                table.insert(self.waypointlist, 1, waypoint.new(gameState.gameDisc.x, gameState.gameDisc.y))
+             if(gameState.gameDisc.currentDiscState == enums.discState.ground) then 
+                local testWP = waypoint.new(gameState.gameDisc.x, gameState.gameDisc.y)
+                table.insert(self.waypointlist, 1, testWP)
             elseif(gameState.gameDisc.currentDiscState == enums.discState.inflight) then
 				local testWP = waypoint.new(gameState.gameDisc.estimatedPosition.x, gameState.gameDisc.estimatedPosition.y)
-                print("x:" .. testWP.x)
-				print("y:" .. testWP.y)
 				table.insert(self.waypointlist, 1, testWP)
             end
 		 
@@ -307,19 +306,22 @@ function player.new(gameState)
 		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 	    elseif self.currentAction == enums.NextAction.cutStopping then
             --Hard Move until stop, then set direction towards way point
-			self:modMoveVector(secDt, self.mtrssMaxDeccel)
-            if self.mtrsMovementVector.x == 0 and self.mtrsMovementVector.y == 0 then
+			if self.mtrsMovementVector.x == 0 and self.mtrsMovementVector.y == 0 then
                 self.currentAction = enums.NextAction.standStill
-                self:removeWayPoint()
+                --self:removeWayPoint()
+            else
+                self:modMoveVector(secDt, self.mtrssMaxDeccel)
+  
             end
         
         --XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 		-- DISCSTOP holdingDiscMoving
 		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         elseif self.currentAction == enums.NextAction.holdingDiscMoving then
-            self:modMoveVector(secDt, self.mtrssMaxDeccel)
             if self.mtrsMovementVector.x == 0 and self.mtrsMovementVector.y == 0 then
                 self.currentAction = enums.NextAction.holdingDiscStopped
+            else
+                self:modMoveVector(secDt, self.mtrssMaxDeccel)
             end
         elseif self.currentAction == enums.NextAction.holdingDiscStopped then
             self.angle = self:GetAngleToPointer()
@@ -339,7 +341,9 @@ function player.new(gameState)
 	end
 	
 	function self:modMoveVector(secDt, accel)
-	    local mtrsAccelerationThisFrame = accel * secDt 
+	    
+	    
+        local mtrsAccelerationThisFrame = accel * secDt 
         local mtrsAccelerationVector = vector.new(0,0,0)
         mtrsAccelerationVector:SetSelfFromMagAngle(mtrsAccelerationThisFrame, self.angle)
         local mtrsNewMovementVector = self.mtrsMovementVector:Add( mtrsAccelerationVector )

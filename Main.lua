@@ -149,7 +149,13 @@ end
 
 function love.keypressed( key, unicode )
    if key == "d" then
-      gameState.selectedPlayer.currentAction = enums.NextAction.chasingDisc
+     if (gameState.gameDisc.currentDiscState == enums.discState.playerhand) then
+        if(gameState.gameDisc.posessingPlayer.playerId ~= gameState.selectedPlayer.playerId) then
+         gameState.selectedPlayer.currentAction = enums.NextAction.chasingDisc
+        end
+      else
+       gameState.selectedPlayer.currentAction = enums.NextAction.chasingDisc
+      end
    end
    if key == "1" then
 		if gameState.selectedPlayer ~= nil then
