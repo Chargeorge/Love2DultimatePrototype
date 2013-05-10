@@ -158,123 +158,120 @@ function player.new(gameState)
 	    self.myBoundingBox:updateXY(self.x,self.y)
 	    
 	    local NextWaypoint = self.waypointlist[1]
-		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		--STAND STILL
-		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-        if self.currentAction == enums.NextAction.standStill then
-	        --Accelerate in a direction
-			if(NextWaypoint ~= nil) then
-			    
-				if collisionCheck:CheckTwoObjects(self, NextWaypoint) then
-					-- TODO: add discy logic
-					self:removeWayPoint()
-				else
-				    --local radAngleToWayPoint = self:GetAngleToCoordinates(NextWaypoint.x, NextWaypoint.y) 
-				    --first figure out if the angle is -1 or positive, then Multiply by -1
-				    --local normradAngleToWaypoint = utilHandler:round((radAngleToWayPoint+ math.pi*2) % (math.pi *2),5) --handle when negative or > 2pi
-                    local normradAngleToWaypoint = self:normradAngleToWaypoint(NextWaypoint)
-                    local normAngle = utilHandler:round((self.angle + math.pi*2) % (math.pi *2),5)
-                    local angleDif = math.abs(normAngle - normradAngleToWaypoint)
-                    if normAngle - normradAngleToWaypoint ~= 0 then
-                        if(self.leftOrRight == enums.rotateDirection.noMove) then
-                            --COME BACK AND ADD FUNCTION TO DO THIS
-                            self.leftOrRight = self:checkLeftRight(normAngle, normradAngleToWaypoint)
-                        end
-                        --(secDt, angleTo, rotateDirection)
-                        self:modRotateSelf(secDt, normradAngleToWaypoint, self.leftOrRight)
-                        if(utilHandler:round((self.angle+ math.pi*2) % (math.pi *2),5)  == normradAngleToWaypoint) then  --Operation normalizes the vector
-                        
-                            self.leftOrRight = enums.rotateDirection.noMove
-                        end
-                        --TODO make side speed factor a per player variable
-                        local mtrssAccel = self.mtrssMaxAccel  * ((((normradAngleToWaypoint-angleDif) % math.pi) / math.pi))
-                        local additionalVector = vector.new(0,0,0)
-                        
-                        additionalVector:SetSelfFromMagAngle(mtrssAccel* secDt, normradAngleToWaypoint)
-                        self.mtrsMovementVector = self.mtrsMovementVector:Add(additionalVector)
-                        --print("self.mtrsMovementVector:" .. self.mtrsMovementVector:debugString()) --DEBUGPRINT
-                        --Acceleration is maxAccell/ 4*((angleToDisc%pi)/pi)
-                        
-                        --TODO: add back some acceleration
-				    else
-				        -- accellmag = accell*secDT, unless Acceleration * secDt > maxSpeed, in which case mag of new vector = maxSpeed
-				        local mtrsAccelerationThisFrame = self.mtrssMaxAccel * secDt 
-				        local additionalVector = vector.new(0,0,0)
-                        additionalVector:SetSelfFromMagAngle(mtrsAccelerationThisFrame, self.angle)
-                        
-                        self.mtrsMovementVector= self.mtrsMovementVector:Add(additionalVector)
-				        self.currentAction = enums.NextAction.movingStraight				        
-				        self.leftOrRight = enums.rotateDirection.noMove
-				    end
-				    
-				    -- if angle = radAngleToWaypoint ( do nothing!)
-				    -- if |radAngleToWaypoint - angle| > radsMaxRotate * secDt rotate towards radAngleToWaypoint radsMaxRotate * secDt
-				    -- else set angle = radAngleToWaypoint
-				    
-				end
-				
-			end
-		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-		-- MOVEING TURNANDMOVE MOVINGSTRAIGHT
-		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	    elseif self.currentAction == enums.NextAction.movingStraight or self.currentAction == enums.NextAction.turnAndMove  then
-	        --Check angle/accell and choose to move to either a hard move or a slower turn
-			if(NextWaypoint ~= nil) then
+		if collisionCheck:CheckTwoObjects(self.myBoundingBox, gameState.gameDisc.myBoundingBox) then
+			
+			--Check Air or ground
+			--If Air
+				-- Check height
+				-- IF height is valid catch
+			--If Ground
+				-- If Team is correct pickup
+				-- else, stand by
+				-- NO TEAMS YET :)
+			if gameState.gameDisc.z > 0 then
+				--Do Nothing for now, need to do height check and catch logic
+				local flimflam = 1
+			else
+				self.currentAction = enums.NextAction.holdingDiscMoving
+				gameState.gameDisc:caught(self)
+			end -- end flight check
+		
+		elseif(NextWaypoint ~= nil) then
 			    
 				if collisionCheck:CheckTwoObjects(self.myBoundingBox, NextWaypoint) then
 				    self:removeWayPoint()
 				    self.mtrsMovementVector = vector.new(0,0,0) --TODO decelerate
 				    self.currentAction = enums.NextAction.standStill
 									
-				elseif collisionCheck:CheckTwoObjects(self.myBoundingBox, gameState.gameDisc.myBoundingBox) then
-					
-                    --Check Air or ground
-					--If Air
-						-- Check height
-						-- IF height is valid catch
-					--If Ground
-						-- If Team is correct pickup
-						-- else, stand by
-						-- NO TEAMS YET :)
-					if gameState.gameDisc.z > 0 then
-						--Do Nothing for now, need to do height check and catch logic
-						local flimflam = 1
-					else
-						self.currentAction = enums.NextAction.holdingDiscMoving
-						gameState.gameDisc:caught(self)
-					end -- end flight check
 				
 				elseif collisionCheck:CheckTwoObjects(self.myBoundingBox, NextWaypoint.myBoundingBox) then
 				    if self.waypointlist[2] == nil then
 				        self.currentAction = enums.NextAction.stopping
 				        self:modMoveVector(secDt, self.mtrssMaxDeccel)
+						self:removeWayPoint()
                     else 
                         local normradAngleToWaypoint = self:normradAngleToWaypoint(self.waypointlist[2])
                         if (math.abs(self.angle-normradAngleToWaypoint ) > self.radCutThreshold) then
                             self:modMoveVector(secDt, self.mtrssMaxDeccel)
                             self.currentAction = enums.NextAction.cutStopping
+							self:removeWayPoint()
 				        else
                             self.currentAction = enums.NextAction.turnAndMove
                             self:removeWayPoint()				            
 				        end
 				    end
 				else
-				    -- continue accelerating
-				    if self.currentAction == enums.NextAction.movingStraight then
-                        self:modMoveVector(secDt, self.mtrssMaxAccel)
-				    else
-				        self:modMoveVector(secDt, self.mtrssMaxAccel)
-				        local normradAngleToWaypoint = self:normradAngleToWaypoint(NextWaypoint)
-                        local normAngle = utilHandler:round((self.angle + math.pi*2) % (math.pi *2),5)
-                        local angleDif = math.abs(normAngle - normradAngleToWaypoint)
-                        local frameLeftRight = self:checkLeftRight(normAngle, normradAngleToWaypoint)
-                        self:modRotateSelfMovementVector(secDt,normradAngleToWaypoint,frameLeftRight)
-				    end
-				    
-                        
-                end--collisionCheckElse
-			end --waypoint check
+			end
+		end
+		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		--STAND STILL
+		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        if self.currentAction == enums.NextAction.standStill then
+	        --Accelerate in a direction
+			if(NextWaypoint ~= nil) then
 			
+				--local radAngleToWayPoint = self:GetAngleToCoordinates(NextWaypoint.x, NextWaypoint.y) 
+				--first figure out if the angle is -1 or positive, then Multiply by -1
+				--local normradAngleToWaypoint = utilHandler:round((radAngleToWayPoint+ math.pi*2) % (math.pi *2),5) --handle when negative or > 2pi
+				local normradAngleToWaypoint = self:normradAngleToWaypoint(NextWaypoint)
+				local normAngle = utilHandler:round((self.angle + math.pi*2) % (math.pi *2),5)
+				local angleDif = math.abs(normAngle - normradAngleToWaypoint)
+				if normAngle - normradAngleToWaypoint ~= 0 then
+					if(self.leftOrRight == enums.rotateDirection.noMove) then
+						--COME BACK AND ADD FUNCTION TO DO THIS
+						self.leftOrRight = self:checkLeftRight(normAngle, normradAngleToWaypoint)
+					end
+					--(secDt, angleTo, rotateDirection)
+					self:modRotateSelf(secDt, normradAngleToWaypoint, self.leftOrRight)
+					if(utilHandler:round((self.angle+ math.pi*2) % (math.pi *2),5)  == normradAngleToWaypoint) then  --Operation normalizes the vector
+					
+						self.leftOrRight = enums.rotateDirection.noMove
+					end
+					--TODO make side speed factor a per player variable
+					local mtrssAccel = self.mtrssMaxAccel  * ((((normradAngleToWaypoint-angleDif) % math.pi) / math.pi))
+					local additionalVector = vector.new(0,0,0)
+					
+					additionalVector:SetSelfFromMagAngle(mtrssAccel* secDt, normradAngleToWaypoint)
+					self.mtrsMovementVector = self.mtrsMovementVector:Add(additionalVector)
+					--print("self.mtrsMovementVector:" .. self.mtrsMovementVector:debugString()) --DEBUGPRINT
+					--Acceleration is maxAccell/ 4*((angleToDisc%pi)/pi)
+					
+					--TODO: add back some acceleration
+				else
+					-- accellmag = accell*secDT, unless Acceleration * secDt > maxSpeed, in which case mag of new vector = maxSpeed
+					local mtrsAccelerationThisFrame = self.mtrssMaxAccel * secDt 
+					local additionalVector = vector.new(0,0,0)
+					additionalVector:SetSelfFromMagAngle(mtrsAccelerationThisFrame, self.angle)
+					
+					self.mtrsMovementVector= self.mtrsMovementVector:Add(additionalVector)
+					self.currentAction = enums.NextAction.movingStraight				        
+					self.leftOrRight = enums.rotateDirection.noMove
+				end
+				
+				-- if angle = radAngleToWaypoint ( do nothing!)
+				-- if |radAngleToWaypoint - angle| > radsMaxRotate * secDt rotate towards radAngleToWaypoint radsMaxRotate * secDt
+				-- else set angle = radAngleToWaypoint
+				
+			end
+			
+		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		-- MOVEING TURNANDMOVE MOVINGSTRAIGHT
+		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	    elseif self.currentAction == enums.NextAction.movingStraight or self.currentAction == enums.NextAction.turnAndMove  then
+	        --Check angle/accell and choose to move to either a hard move or a slower turn
+				    -- continue accelerating
+			if self.currentAction == enums.NextAction.movingStraight then
+				self:modMoveVector(secDt, self.mtrssMaxAccel)
+			else
+				self:modMoveVector(secDt, self.mtrssMaxAccel)
+				local normradAngleToWaypoint = self:normradAngleToWaypoint(NextWaypoint)
+				local normAngle = utilHandler:round((self.angle + math.pi*2) % (math.pi *2),5)
+				local angleDif = math.abs(normAngle - normradAngleToWaypoint)
+				local frameLeftRight = self:checkLeftRight(normAngle, normradAngleToWaypoint)
+				self:modRotateSelfMovementVector(secDt,normradAngleToWaypoint,frameLeftRight)
+			end
+			
+                        
 	    --XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 		-- DISC AS WAYPOINT
 		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
