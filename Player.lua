@@ -16,8 +16,8 @@ function player.new(gameState)
 	self.front = 1.2;
 	self.angle = 0;
 	self.z = 0 -- Z is the bottom of the foot
-	self.height = 0 -- height to head
-	self.armLen = 0-- length of arm
+	self.height = 2 -- height to head
+	self.armLen = 1-- length of arm
 	self.playerId = math.random(1, 1000000) --TODO: Need to take a look at this, and ensure no collisions.
 	self.waypointlist = {}
 	self.isselected = false
@@ -25,8 +25,8 @@ function player.new(gameState)
 	self.mtrsMovementVector = vector.new(0, 0,0)
 	self.myBoundingBox = boundingBox.new(self.x, self.y, self.front, self.side)
 	--Stats
-	self.mtrsMaxSpeed = 4
-	self.mtrssMaxAccel = 2
+	self.mtrsMaxSpeed = 6.5
+	self.mtrssMaxAccel = 3
 	self.mtrssMaxDeccel = -8
 	self.radsMaxRotate = math.pi*2
 	self.radCutThreshold = math.pi/3 --Point at which this dude will cut vs turn
@@ -170,7 +170,11 @@ function player.new(gameState)
 				-- NO TEAMS YET :)
 			if gameState.gameDisc.z > 0 then
 				--Do Nothing for now, need to do height check and catch logic
-				local flimflam = 1
+				if(gameState.gameDisc.z > self.height+self.armLen) then
+                    self.currentAction = enums.NextAction.holdingDiscMoving
+                    gameState.gameDisc:caught(self)
+                    print "Caught In Air"
+				end
 			else
 				self.currentAction = enums.NextAction.holdingDiscMoving
 				gameState.gameDisc:caught(self)
