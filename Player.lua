@@ -168,17 +168,19 @@ function player.new(gameState)
 				-- If Team is correct pickup
 				-- else, stand by
 				-- NO TEAMS YET :)
-			if gameState.gameDisc.z > 0 then
-				--Do Nothing for now, need to do height check and catch logic
-				if(gameState.gameDisc.z > self.height+self.armLen) then
+			if(gameState.gameDisc.currentDiscState ~= enums.discState.playerhand  ) then
+                if gameState.gameDisc.z > 0 then
+                    --Do Nothing for now, need to do height check and catch logic
+                    if(gameState.gameDisc.z < self.height+self.armLen and gameState.gameDisc.lastTouchPlayer.playerId ~= self.playerId) then
+                        self.currentAction = enums.NextAction.holdingDiscMoving
+                        gameState.gameDisc:caught(self)
+                        print "Caught In Air"
+                    end
+                else
                     self.currentAction = enums.NextAction.holdingDiscMoving
                     gameState.gameDisc:caught(self)
-                    print "Caught In Air"
-				end
-			else
-				self.currentAction = enums.NextAction.holdingDiscMoving
-				gameState.gameDisc:caught(self)
-			end -- end flight check
+                end -- end flight check
+            end
 		
 		elseif(NextWaypoint ~= nil) then
 			    

@@ -24,6 +24,7 @@ function disk.new(gameState)
 	self.posessingPlayer = {}
 	self.estimatedPosition = nil --= disk.new() Create a disk, launch it, run through a full move
 	self.color = {r=255,g=255,b=255,alpha=255}
+	self.lastTouchPlayer = nil
 	local zConstant = .5
 	local gravityDefault = .07
 	self.myBoundingBox = boundingBox.new(self.x-self.radius,self.y-self.radius, self.radius*2, self.radius*2)
@@ -33,6 +34,7 @@ function disk.new(gameState)
 		self.currentDiscState = enums.discState.inflight
 		self.velocityVector = velVector
 		self.z = 1.5
+		self.lastTouchPlayer = self.posessingPlayer
 		self.posessingPlayer = {}
 		self:EstimateFinalPosition(.017,0) --TODO: remove hacked in value
 	end
@@ -104,7 +106,7 @@ function disk.new(gameState)
 	function self:caught(player)
 		self.currentDiscState = enums.discState.playerhand
 		self.posessingPlayer = player
-
+        
 	end
 	
 	function self:draw()
