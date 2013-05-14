@@ -286,25 +286,26 @@ function player.new(gameState)
 		    -- Case #1, disc is in the air, set a waypoint at it's estimated position
             -- Case #2 Disc is on the ground, run to the disc 
 
-             if(gameState.gameDisc.currentDiscState == enums.discState.ground) then 
+			if(gameState.gameDisc.currentDiscState == enums.discState.ground) then 
                 local testWP = waypoint.new(gameState.gameDisc.x, gameState.gameDisc.y)
                 table.insert(self.waypointlist, 1, testWP)
             elseif(gameState.gameDisc.currentDiscState == enums.discState.inflight) then
 				local testWP = waypoint.new(gameState.gameDisc.estimatedPosition.x, gameState.gameDisc.estimatedPosition.y)
 				table.insert(self.waypointlist, 1, testWP)
             end
-		 
-            local normradAngleToWaypoint = self:normradAngleToWaypoint(self.waypointlist[1])
-            
-			if(self.mtrsMovementVector.x ==0 and self.mtrsMovementVector.y == 0) then
-				self.currentAction = enums.NextAction.standStill
-			else
-				if (math.abs(self.angle-normradAngleToWaypoint ) > self.radCutThreshold) then
-					self:modMoveVector(secDt, self.mtrssMaxDeccel)
-					self.currentAction = enums.NextAction.cutStopping
+			if gameState.gameDisc.currentDiscState ~= enums.discState.playerhand then
+				local normradAngleToWaypoint = self:normradAngleToWaypoint(self.waypointlist[1])
+				
+				if(self.mtrsMovementVector.x ==0 and self.mtrsMovementVector.y == 0) then
+					self.currentAction = enums.NextAction.standStill
 				else
-					self.currentAction = enums.NextAction.turnAndMove
-												
+					if (math.abs(self.angle-normradAngleToWaypoint ) > self.radCutThreshold) then
+						self:modMoveVector(secDt, self.mtrssMaxDeccel)
+						self.currentAction = enums.NextAction.cutStopping
+					else
+						self.currentAction = enums.NextAction.turnAndMove
+													
+					end
 				end
 			end
 		--XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
