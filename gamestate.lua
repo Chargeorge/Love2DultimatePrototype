@@ -13,7 +13,6 @@ function gamestate.new()
 	self.drawThrowVector = false
 	
 	
-	
 	self.Utils = utils.new()
     
 	--UltiRules
