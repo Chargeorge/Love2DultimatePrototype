@@ -10,9 +10,9 @@ function spriteDB.new()
     self.blueSheet = {}
     self.blueSheet.img = image
     self.blueSheet.up = love.graphics.newQuad(0, 0, 32,32, 128, 128)
-    self.blueSheet.left = love.graphics.newQuad(0, 64, 64,64, 128, 128)
-    self.blueSheet.right = love.graphics.newQuad(0, 128, 64,64, 128, 128)
-    self.blueSheet.down = love.graphics.newQuad(0, 192, 64,64, 128, 128)
+    self.blueSheet.left = love.graphics.newQuad(0, 32, 32,32, 128, 128)
+    self.blueSheet.down = love.graphics.newQuad(0, 64, 32,32, 128, 128)
+    self.blueSheet.right = love.graphics.newQuad(0, 96, 32,32, 128, 128)
     
     return self
 end

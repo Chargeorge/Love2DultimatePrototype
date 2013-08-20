@@ -12,7 +12,7 @@ function player.new(gameState)
 	local collisionCheck = collisionChecker:new()
 	self.x  = 40 -- need to create a coordinate system
 	self.y = 40 
-	self.side = .8;
+	self.side = 2;
 	self.front = 1.2;
 	self.angle = 0;
 	self.z = 0 -- Z is the bottom of the foot
@@ -69,8 +69,16 @@ function player.new(gameState)
 		local width = love.graphics.getWidth()
 		local height = love.graphics.getHeight()
 		
-        love.graphics.drawq(self.gameState.sprites.blueSheet.img, sprites.blueSheet.up, self:GetPixelX()-self.front*2, self:GetPixelY()-self.side*2)
-		--print(self.angle)
+		if(self.angle < math.pi/4 or self.angle >= (2*math.pi- math.pi/4)) then
+            love.graphics.drawq(self.gameState.sprites.blueSheet.img, sprites.blueSheet.up, self:GetPixelX()-(utilHandler:TD(self.front)/2)-3, self:GetPixelY()-(utilHandler:TD(self.side)/2))
+		elseif(self.angle <= math.pi-math.pi/4 and self.angle > (math.pi/4)) then
+		    love.graphics.drawq(self.gameState.sprites.blueSheet.img, sprites.blueSheet.right, self:GetPixelX()-(utilHandler:TD(self.front)/2)-3, self:GetPixelY()-(utilHandler:TD(self.side)/2))
+		elseif(self.angle <= math.pi+math.pi/4 and self.angle > (math.pi-math.pi/4)) then
+		    love.graphics.drawq(self.gameState.sprites.blueSheet.img, sprites.blueSheet.down, self:GetPixelX()-(utilHandler:TD(self.front)/2)-3, self:GetPixelY()-(utilHandler:TD(self.side)/2))
+		else
+		    love.graphics.drawq(self.gameState.sprites.blueSheet.img, sprites.blueSheet.left, self:GetPixelX()-(utilHandler:TD(self.front)/2)-3, self:GetPixelY()-(utilHandler:TD(self.side)/2))
+	    end 
+--print(self.angle)
 		
 		--love.graphics.rectangle("fill", self:GetPixelX(), self:GetPixelY(), utilHandler:TD(self.front), utilHandler:TD(self.side) );
 		--love.graphics.setPointSize(5)
