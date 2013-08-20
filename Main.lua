@@ -6,10 +6,8 @@ local vector = require("vector")
 local gamestate = require("gamestate")
 local waypoint = require("WayPoint")
 local enums = require("enums")
+local spriteDB = require("SpriteDB")
 debugFlg = true
-
-
-
 
 function love.load()
     
@@ -30,9 +28,9 @@ function love.load()
 
 	gameState.selectedPlayer = player2
 	--table.insert(mainplayer.waypointlist, wayPointer)
-	
+	sprites = spriteDB.new()
 	Field = field.new()
-    
+    TestSpriteDB = 
 	player2:selected()
 	player2.angle = math.pi/2
 	playerobjs = {mainplayer, player2}
@@ -60,12 +58,16 @@ function love.draw()
 		love.graphics.print("MouseX: ".. mouseX, love.mouse.getX(),love.mouse.getY() )
 		love.graphics.print("MouseY: ".. mouseY, love.mouse.getX(),love.mouse.getY()+20)
 	end
+	
+	--love.graphics.drawq(sprites.blueSheet.img, sprites.blueSheet.up, 64, 64)
 end
 
 function love.update(dt)
 	--print(mainplayer.angle)
 	--mainplayer.angle = 0
 
+
+    
     if not debugFlg then
         if gameState.drawThrowVector and gameState.throwVector ~= nil then
             gameState.throwVector:SetSelfFromAbsol(love.mouse.getX(),love.mouse.getY())

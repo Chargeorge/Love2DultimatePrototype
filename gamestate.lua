@@ -1,5 +1,6 @@
 local gamestate = {}
 local utils = require("utils")
+local spriteDB = require("SpriteDB")
 function gamestate.new()
 	--Ulti Rules globals
 	self = {}
@@ -11,7 +12,7 @@ function gamestate.new()
 	self.selectedPlayer  = nil
 	self.throwVector = nil
 	self.drawThrowVector = false
-	
+	self.sprites = spriteDB.new()
 	
 	self.Utils = utils.new()
     

@@ -37,7 +37,7 @@ function player.new(gameState)
 	self.gameState = gameState
 	--Internals
 	self.leftOrRight = enums.rotateDirection.noMove--during a turn move am I moving left or right?
-                        
+             
 	function self:GetPixelX()
 		return utilHandler:TranslateXMeterToPixel(self.x)
 	
@@ -69,15 +69,16 @@ function player.new(gameState)
 		local width = love.graphics.getWidth()
 		local height = love.graphics.getHeight()
 		
+        love.graphics.drawq(self.gameState.sprites.blueSheet.img, sprites.blueSheet.up, self:GetPixelX()-self.front*2, self:GetPixelY()-self.side*2)
+		--print(self.angle)
+		
+		--love.graphics.rectangle("fill", self:GetPixelX(), self:GetPixelY(), utilHandler:TD(self.front), utilHandler:TD(self.side) );
+		--love.graphics.setPointSize(5)
+		
+		
 		love.graphics.translate(self:XCenterDistanceFromOrigin(), self:YCenterDistanceFromOrigin())
 		love.graphics.rotate(self.angle)
 		love.graphics.translate(-1*self:XCenterDistanceFromOrigin(), -1*self:YCenterDistanceFromOrigin())
-		--print(self.angle)
-		
-		love.graphics.rectangle("fill", self:GetPixelX(), self:GetPixelY(), utilHandler:TD(self.front), utilHandler:TD(self.side) );
-		love.graphics.setPointSize(5)
-		--
-		
 		love.graphics.setColor(20, 20, 20, 255)
 		
 		love.graphics.point(self:XCenterDistanceFromOrigin(), self:GetPixelY())--
